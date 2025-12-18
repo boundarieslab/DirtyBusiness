@@ -46,7 +46,7 @@ const hillshadeWMS = {
         layers: 'NHM_DTM_25833:skyggerelieff',
         format: 'image/png',
         transparent: true,
-        opacity: 0.4,
+        opacity: 0.7,
         attribution: '© <a href="https://www.kartverket.no/">Kartverket</a>'
     }
 };
