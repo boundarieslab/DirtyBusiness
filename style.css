@@ -123,9 +123,9 @@ html, body {
     height: 8px;
     border: 1px solid var(--text-dim);
 }
-.legend-icon.active { background: var(--text); }
-.legend-icon.inactive { background: transparent; }
-.legend-icon.illegal { background: var(--text); }
+.legend-icon.active { background: #4CAF50; border-color: #4CAF50; }
+.legend-icon.inactive { background: #2196F3; border-color: #2196F3; }
+.legend-icon.illegal { background: #f44336; border-color: #f44336; }
 
 /* Place details */
 .back-btn {
