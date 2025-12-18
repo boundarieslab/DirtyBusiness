@@ -8,7 +8,7 @@ const mapZoom = 10;
 
 // Data source - can be local CSV or Google Sheets published CSV
 // To use Google Sheets: File > Publish to web > CSV, then paste URL here
-const dataLocation = 'data/places.csv';
+const dataLocation = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnON3VXUjMLUIfRVxtv_3UOAt_Juyx5ShiNkmoGWs7sQWaNqpK6eh3usIMg44OswkVg8iNa5VdhFWv/pub?output=csv';
 
 // Alternative: Google Sheets URL (uncomment and replace with your own)
 // const dataLocation = 'https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?gid=0&single=true&output=csv';
