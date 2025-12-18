@@ -79,7 +79,10 @@ document.querySelectorAll('input[name="basemap"]').forEach(radio => {
             topoLayer.addTo(map);
             currentBasemap = 'topo';
             isGrayscale = false;
-        }
+         } else if (value === 'none') {
+    currentBasemap = 'none';
+    isGrayscale = false;
+}
         
         // Make sure hillshade stays on top
         if (map.hasLayer(hillshadeLayer)) {
