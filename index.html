@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dirty Business | Skitne Penger</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header with dripping logo -->
+    <header class="site-header">
+        <div class="logo-container">
+            <h1 class="logo">
+                <span class="logo-text">DIRTY BUSINESS</span>
+                <svg class="drip-svg" viewBox="0 0 400 60" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="dirtGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#5c4033;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#3d2817;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Dripping effect paths -->
+                    <path class="drip" d="M0,0 L0,8 Q5,35 10,8 L10,0 Z" fill="url(#dirtGradient)">
+                        <animate attributeName="d" dur="3s" repeatCount="indefinite" 
+                            values="M0,0 L0,8 Q5,35 10,8 L10,0 Z;M0,0 L0,12 Q5,50 10,12 L10,0 Z;M0,0 L0,8 Q5,35 10,8 L10,0 Z"/>
+                    </path>
+                    <path class="drip" d="M30,0 L30,15 Q35,55 40,15 L40,0 Z" fill="url(#dirtGradient)">
+                        <animate attributeName="d" dur="4s" repeatCount="indefinite" begin="0.5s"
+                            values="M30,0 L30,15 Q35,55 40,15 L40,0 Z;M30,0 L30,25 Q35,70 40,25 L40,0 Z;M30,0 L30,15 Q35,55 40,15 L40,0 Z"/>
+                    </path>
+                    <path class="drip" d="M70,0 L70,10 Q75,40 80,10 L80,0 Z" fill="url(#dirtGradient)">
+                        <animate attributeName="d" dur="3.5s" repeatCount="indefinite" begin="1s"
+                            values="M70,0 L70,10 Q75,40 80,10 L80,0 Z;M70,0 L70,18 Q75,60 80,18 L80,0 Z;M70,0 L70,10 Q75,40 80,10 L80,0 Z"/>
+                    </path>
+                    <path class="drip" d="M120,0 L120,20 Q125,65 130,20 L130,0 Z" fill="url(#dirtGradient)">
+                        <animate attributeName="d" dur="5s" repeatCount="indefinite" begin="0.2s"
+                            values="M120,0 L120,20 Q125,65 130,20 L130,0 Z;M120,0 L120,35 Q125,85 130,35 L130,0 Z;M120,0 L120,20 Q125,65 130,20 L130,0 Z"/>
+                    </path>
+                    <path class="drip" d="M160,0 L160,12 Q165,45 170,12 L170,0 Z" fill="url(#dirtGradient)"></path>
+                    <path class="drip" d="M200,0 L200,18 Q205,58 210,18 L210,0 Z" fill="url(#dirtGradient)">
+                        <animate attributeName="d" dur="4.5s" repeatCount="indefinite" begin="0.8s"
+                            values="M200,0 L200,18 Q205,58 210,18 L210,0 Z;M200,0 L200,30 Q205,75 210,30 L210,0 Z;M200,0 L200,18 Q205,58 210,18 L210,0 Z"/>
+                    </path>
+                    <path class="drip" d="M250,0 L250,8 Q255,30 260,8 L260,0 Z" fill="url(#dirtGradient)"></path>
+                    <path class="drip" d="M290,0 L290,22 Q295,70 300,22 L300,0 Z" fill="url(#dirtGradient)">
+                        <animate attributeName="d" dur="3.8s" repeatCount="indefinite" begin="1.2s"
+                            values="M290,0 L290,22 Q295,70 300,22 L300,0 Z;M290,0 L290,38 Q295,90 300,38 L300,0 Z;M290,0 L290,22 Q295,70 300,22 L300,0 Z"/>
+                    </path>
+                    <path class="drip" d="M340,0 L340,14 Q345,48 350,14 L350,0 Z" fill="url(#dirtGradient)"></path>
+                    <path class="drip" d="M380,0 L380,10 Q385,38 390,10 L390,0 Z" fill="url(#dirtGradient)"></path>
+                </svg>
+            </h1>
+            <p class="subtitle" data-en="Mapping mass movements in the Oslo region" data-no="Kartlegging av massehåndtering i Oslo-regionen"></p>
+        </div>
+        
+        <div class="header-controls">
+            <button class="lang-toggle" id="lang-toggle" title="Switch language">
+                <span class="lang-active">EN</span> | <span class="lang-inactive">NO</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <!-- Default intro content -->
+                <div class="sidebar-intro" id="sidebar-intro">
+                    <h2 data-en="About This Project" data-no="Om dette prosjektet">About This Project</h2>
+                    <p data-en="This map documents the movement of soil, rock, and construction materials across the greater Oslo region. Click on any marker to learn more about specific operations, view documents, and see evidence." 
+                       data-no="Dette kartet dokumenterer forflytning av jord, stein og byggematerialer i Oslo-regionen. Klikk på en markør for å lære mer om spesifikke operasjoner, se dokumenter og bevis.">
+                        This map documents the movement of soil, rock, and construction materials across the greater Oslo region. Click on any marker to learn more about specific operations, view documents, and see evidence.
+                    </p>
+                    
+                    <div class="legend">
+                        <h3 data-en="Legend" data-no="Tegnforklaring">Legend</h3>
+                        <div class="legend-item">
+                            <span class="legend-icon active"></span>
+                            <span data-en="Active deposit" data-no="Aktivt deponi">Active deposit</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-icon inactive"></span>
+                            <span data-en="Closed/Historic" data-no="Stengt/Historisk">Closed/Historic</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-icon illegal"></span>
+                            <span data-en="Suspected illegal" data-no="Mistenkt ulovlig">Suspected illegal</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dynamic place content (shown when marker clicked) -->
+                <div class="sidebar-place" id="sidebar-place" style="display: none;">
+                    <button class="back-btn" id="back-btn" data-en="← Back to overview" data-no="← Tilbake til oversikt">← Back to overview</button>
+                    
+                    <div class="place-header">
+                        <h2 id="place-name"></h2>
+                        <span class="place-status" id="place-status"></span>
+                    </div>
+                    
+                    <div class="place-gallery" id="place-gallery">
+                        <!-- Images loaded dynamically -->
+                    </div>
+                    
+                    <div class="place-description" id="place-description">
+                        <!-- Description loaded dynamically -->
+                    </div>
+                    
+                    <div class="place-details" id="place-details">
+                        <!-- Details loaded dynamically -->
+                    </div>
+                    
+                    <div class="place-documents" id="place-documents">
+                        <h3 data-en="Documents" data-no="Dokumenter">Documents</h3>
+                        <ul id="document-list">
+                            <!-- Documents loaded dynamically -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Map -->
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <!-- Layer controls -->
+            <div class="layer-controls" id="layer-controls">
+                <h4 data-en="Base Map" data-no="Bakgrunnskart">Base Map</h4>
+                <label class="layer-option">
+                    <input type="radio" name="basemap" value="satellite" checked>
+                    <span data-en="Satellite" data-no="Satellitt">Satellite</span>
+                </label>
+                <label class="layer-option">
+                    <input type="radio" name="basemap" value="satellite-bw">
+                    <span data-en="Satellite B&W" data-no="Satellitt S/H">Satellite B&W</span>
+                </label>
+                <label class="layer-option">
+                    <input type="radio" name="basemap" value="topo">
+                    <span data-en="Topographic" data-no="Topografisk">Topographic</span>
+                </label>
+                
+                <h4 data-en="Overlays" data-no="Overlegg">Overlays</h4>
+                <label class="layer-option">
+                    <input type="checkbox" id="hillshade-toggle" checked>
+                    <span data-en="Terrain Hillshade" data-no="Terreng skyggerelieff">Terrain Hillshade</span>
+                </label>
+                
+                <div class="opacity-slider">
+                    <label data-en="Hillshade opacity" data-no="Skyggerelieff gjennomsiktighet">Hillshade opacity</label>
+                    <input type="range" id="hillshade-opacity" min="0" max="100" value="40">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lightbox for images -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightbox-close">×</button>
+        <button class="lightbox-prev" id="lightbox-prev">‹</button>
+        <button class="lightbox-next" id="lightbox-next">›</button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="">
+            <div class="lightbox-caption" id="lightbox-caption"></div>
+        </div>
+        <div class="lightbox-counter" id="lightbox-counter"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="settings.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
