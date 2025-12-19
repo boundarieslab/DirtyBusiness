@@ -1,74 +1,70 @@
-// ============================================
+// =====================================================
 // DIRTY BUSINESS - Settings
-// ============================================
+// =====================================================
 
-// Map center and zoom
-const mapCenter = [59.95, 11.05];
-const mapZoom = 10;
+// Map center: OSLO
+const mapCenter = [59.91, 10.75];
+const mapZoom = 11;
 
-// Data source - can be local CSV or Google Sheets published URL
-// For Google Sheets: File → Share → Publish to web → CSV
+// Data source - local CSV or Google Sheets URL
 const dataLocation = 'data/places.csv';
 
-// ============================================
+// =====================================================
 // BASE MAPS
-// ============================================
+// =====================================================
 
 const basemaps = {
-    // Dark grayscale topographic map (default)
+    // Dark grayscale (default)
     dark: {
-        type: 'wmts',
         url: 'https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4graatone&zoom={z}&x={x}&y={y}',
         options: {
             attribution: '&copy; <a href="https://kartverket.no">Kartverket</a>',
-            maxZoom: 20
+            maxZoom: 19
         }
     },
     
-    // Satellite imagery
+    // Satellite (Norge i Bilder)
     satellite: {
-        type: 'wmts',
         url: 'https://opencache{s}.statkart.no/gatekeeper/gk/gk.open_nib_web_mercator_wmts_v2?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=Nibcache_web_mercator_v2&STYLE=default&FORMAT=image/jpgpng&TILEMATRIXSET=default028mm&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',
         options: {
             subdomains: ['', '2', '3'],
             attribution: '&copy; <a href="https://norgeibilder.no">Norge i Bilder</a>',
-            maxZoom: 20
+            maxZoom: 19
         }
     },
     
-    // Topographic color map
+    // Color topographic
     topo: {
-        type: 'wmts',
         url: 'https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4&zoom={z}&x={x}&y={y}',
         options: {
             attribution: '&copy; <a href="https://kartverket.no">Kartverket</a>',
-            maxZoom: 20
+            maxZoom: 19
         }
     }
 };
 
-// ============================================
-// OVERLAY LAYERS
-// ============================================
+// =====================================================
+// WMS OVERLAY LAYERS
+// =====================================================
 
 const overlays = {
-    // DTM Hillshade
+    
+    // DTM Hillshade (Kartverket)
     hillshade: {
-        type: 'wms',
         url: 'https://wms.geonorge.no/skwms1/wms.hoyde-dtm-nhm-25833',
         options: {
             layers: 'nhm_dtm_25833_terrengskyggerelieff',
             format: 'image/png',
             transparent: true,
             opacity: 0.5,
-            attribution: '&copy; <a href="https://kartverket.no">Kartverket</a>'
+            attribution: '&copy; Kartverket'
         },
         className: 'hillshade-layer'
     },
     
-    // Contaminated ground (forurenset grunn)
+    // Contaminated Ground / Forurenset grunn (Miljødirektoratet)
+    // Shows contaminated sites and landfills
     contaminated: {
-        type: 'wms',
         url: 'https://kart.miljodirektoratet.no/arcgis/services/grunnforurensning2/MapServer/WMSServer',
         options: {
             layers: '0,1,2,3',
@@ -77,23 +73,56 @@ const overlays = {
             opacity: 0.7,
             attribution: '&copy; <a href="https://miljodirektoratet.no">Miljødirektoratet</a>'
         }
+    },
+    
+    // Quick Clay Risk / Kvikkleire aktsomhet (NVE)
+    // Shows areas with potential quick clay landslide risk
+    quickclay: {
+        url: 'https://nve.geodataonline.no/arcgis/services/KvikkleireskredAktsomhet/MapServer/WMSServer',
+        options: {
+            layers: '0',
+            format: 'image/png',
+            transparent: true,
+            opacity: 0.6,
+            attribution: '&copy; <a href="https://nve.no">NVE</a>'
+        }
+    },
+    
+    // Surficial Deposits / Løsmasser (NGU)
+    // Shows quaternary geology / soil types
+    surficial: {
+        url: 'https://geo.ngu.no/mapserver/LosijordWMS',
+        options: {
+            layers: 'Losmasse_flate',
+            format: 'image/png',
+            transparent: true,
+            opacity: 0.5,
+            attribution: '&copy; <a href="https://ngu.no">NGU</a>'
+        }
     }
 };
 
-// ============================================
-// GOOGLE DRIVE HELPER
-// ============================================
-// To use images from Google Drive:
-// 1. Upload image to Google Drive
-// 2. Right-click → Share → Anyone with link can view
-// 3. Copy the file ID from the URL (the long string after /d/)
-// 4. Use this format in your CSV:
-//    https://drive.google.com/uc?export=view&id=YOUR_FILE_ID
-//
-// Example:
-// If your share link is: https://drive.google.com/file/d/1ABC123xyz/view
-// Your image URL should be: https://drive.google.com/uc?export=view&id=1ABC123xyz
+// =====================================================
+// GOOGLE DRIVE INSTRUCTIONS
+// =====================================================
+/*
+To use images/PDFs from Google Drive:
 
-// For PDFs:
-// Use the same format, or link directly to the Google Drive preview:
-// https://drive.google.com/file/d/YOUR_FILE_ID/preview
+1. Upload file to Google Drive
+2. Right-click → Share → "Anyone with the link can view"
+3. Copy the file ID from the share URL
+
+Share URL format:
+https://drive.google.com/file/d/FILE_ID_HERE/view?usp=sharing
+
+For IMAGES, use this URL in CSV:
+https://drive.google.com/uc?export=view&id=FILE_ID_HERE
+
+For PDFs, use this URL in CSV:
+https://drive.google.com/file/d/FILE_ID_HERE/preview
+
+Example:
+If share link is: https://drive.google.com/file/d/1ABC123xyz/view
+Image URL: https://drive.google.com/uc?export=view&id=1ABC123xyz
+PDF URL: https://drive.google.com/file/d/1ABC123xyz/preview
+*/

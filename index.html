@@ -4,178 +4,179 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DIRTY_BUSINESS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- INTRO OVERLAY -->
-<div id="intro-overlay">
-    <div class="intro-content">
-        <h1>DIRTY_BUSINESS</h1>
-        <p class="intro-subtitle">// mapping mass movement operations</p>
-        
-        <div class="intro-text" data-lang-en>
-            <p>This project documents the extensive network of soil, rock, and construction material movements around Oslo. Every year, millions of cubic meters of mass are excavated, transported, and deposited across the region.</p>
-            
-            <p>Behind these operations lies a complex web of permits, companies, and environmental impacts that often remains invisible to the public. Some operations are legal and well-regulated. Others operate in grey zones. Some are outright illegal.</p>
-            
-            <p>This map aims to make visible what is usually hidden — tracking where the dirt goes, who profits, and what traces are left on the landscape.</p>
-        </div>
-        
-        <div class="intro-text" data-lang-no style="display:none;">
-            <p>Dette prosjektet dokumenterer det omfattende nettverket av jord-, stein- og byggemassebevegelser rundt Oslo. Hvert år graves det ut, transporteres og deponeres millioner av kubikkmeter masse i regionen.</p>
-            
-            <p>Bak disse operasjonene ligger et komplekst nett av tillatelser, selskaper og miljøpåvirkninger som ofte forblir usynlig for offentligheten. Noen operasjoner er lovlige og godt regulerte. Andre opererer i gråsoner. Noen er direkte ulovlige.</p>
-            
-            <p>Dette kartet har som mål å synliggjøre det som vanligvis er skjult — spore hvor massene havner, hvem som tjener på det, og hvilke spor som etterlates i landskapet.</p>
-        </div>
-        
-        <button id="enter-map">
-            <span data-lang-en>Enter Map</span>
-            <span data-lang-no style="display:none;">Gå til kart</span>
+<!-- HEADER -->
+<header class="site-header">
+    <div class="logo-container">
+        <h1 class="logo-text">DIRTY_BUSINESS</h1>
+        <p class="subtitle">
+            <span data-lang="en">// mapping mass movements in Oslo region</span>
+            <span data-lang="no" style="display:none;">// kartlegger massebevegelser i Oslo-regionen</span>
+        </p>
+    </div>
+    <div class="header-controls">
+        <button class="lang-toggle" id="lang-toggle">
+            <span class="lang-active">EN</span> | <span class="lang-inactive">NO</span>
         </button>
-        
-        <div class="intro-lang">
-            <span class="lang-btn active" data-lang="en">EN</span>
-            <span class="lang-divider">|</span>
-            <span class="lang-btn" data-lang="no">NO</span>
-        </div>
     </div>
-</div>
-
-<!-- POPUP MODAL -->
-<div id="popup-modal" class="modal">
-    <div class="modal-content">
-        <span class="modal-close">&times;</span>
-        <div id="modal-body"></div>
-    </div>
-</div>
-
-<!-- IMAGE LIGHTBOX -->
-<div id="lightbox">
-    <span class="lightbox-close">&times;</span>
-    <img id="lightbox-img" src="" alt="">
-    <p id="lightbox-caption"></p>
-</div>
+</header>
 
 <!-- MAIN CONTAINER -->
-<div id="main-container" style="display:none;">
+<div class="main-container">
     
     <!-- SIDEBAR -->
-    <div id="sidebar">
-        <div class="sidebar-header">
-            <h1>DIRTY_BUSINESS</h1>
-            <p class="subtitle">
-                <span data-lang-en>// mass movements around Oslo</span>
-                <span data-lang-no style="display:none;">// massebevegelser rundt Oslo</span>
-            </p>
-            <div class="lang-toggle">
-                <span class="lang-btn active" data-lang="en">EN</span>
-                <span class="lang-divider">|</span>
-                <span class="lang-btn" data-lang="no">NO</span>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-content">
+            
+            <!-- ABOUT SECTION - Expandable -->
+            <div class="sidebar-section">
+                <h2 data-lang="en">About</h2>
+                <h2 data-lang="no" style="display:none;">Om prosjektet</h2>
+                
+                <p class="about-intro" data-lang="en">
+                    Documenting mass movement operations around Oslo — where the dirt goes, who profits.
+                </p>
+                <p class="about-intro" data-lang="no" style="display:none;">
+                    Dokumenterer massebevegelser rundt Oslo — hvor massene havner, hvem som tjener.
+                </p>
+                
+                <div class="about-expanded" id="about-expanded" style="display:none;">
+                    <p data-lang="en">
+                        Every year, millions of cubic meters of soil, rock, and construction materials are excavated, transported, and deposited across the Oslo region. Behind these operations lies a complex web of permits, companies, and environmental impacts.
+                    </p>
+                    <p data-lang="en">
+                        Some operations are legal and well-regulated. Others operate in grey zones. Some are outright illegal. This map aims to make visible what is usually hidden.
+                    </p>
+                    <p data-lang="no" style="display:none;">
+                        Hvert år graves det ut, transporteres og deponeres millioner av kubikkmeter jord, stein og byggematerialer i Oslo-regionen. Bak disse operasjonene ligger et komplekst nett av tillatelser, selskaper og miljøpåvirkninger.
+                    </p>
+                    <p data-lang="no" style="display:none;">
+                        Noen operasjoner er lovlige og godt regulerte. Andre opererer i gråsoner. Noen er direkte ulovlige. Dette kartet har som mål å synliggjøre det som vanligvis er skjult.
+                    </p>
+                </div>
+                
+                <button class="expand-btn" id="expand-about">
+                    <span data-lang="en">Read more ↓</span>
+                    <span data-lang="no" style="display:none;">Les mer ↓</span>
+                </button>
             </div>
-        </div>
-        
-        <div class="sidebar-scroll">
+            
             <!-- LEGEND -->
             <div class="sidebar-section">
-                <h3>
-                    <span data-lang-en>Legend</span>
-                    <span data-lang-no style="display:none;">Tegnforklaring</span>
-                </h3>
+                <h3 data-lang="en">Legend</h3>
+                <h3 data-lang="no" style="display:none;">Tegnforklaring</h3>
                 <div class="legend">
                     <div class="legend-item">
                         <span class="legend-icon active"></span>
-                        <span data-lang-en>Active</span>
-                        <span data-lang-no style="display:none;">Aktiv</span>
+                        <span data-lang="en">Active</span>
+                        <span data-lang="no" style="display:none;">Aktiv</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-icon inactive"></span>
-                        <span data-lang-en>Inactive</span>
-                        <span data-lang-no style="display:none;">Inaktiv</span>
+                        <span data-lang="en">Inactive</span>
+                        <span data-lang="no" style="display:none;">Inaktiv</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-icon illegal"></span>
-                        <span data-lang-en>Illegal/Suspected</span>
-                        <span data-lang-no style="display:none;">Ulovlig/Mistenkt</span>
+                        <span data-lang="en">Illegal / Suspected</span>
+                        <span data-lang="no" style="display:none;">Ulovlig / Mistenkt</span>
                     </div>
                 </div>
             </div>
             
-            <!-- PLACES GALLERY -->
-            <div class="sidebar-section">
-                <h3>
-                    <span data-lang-en>Locations</span>
-                    <span data-lang-no style="display:none;">Steder</span>
-                </h3>
-                <div id="gallery-grid"></div>
+            <!-- PLACE DETAILS (hidden by default) -->
+            <div id="place-details" style="display:none;">
+                <button class="back-btn" id="back-btn">
+                    <span data-lang="en">← Back to overview</span>
+                    <span data-lang="no" style="display:none;">← Tilbake til oversikt</span>
+                </button>
+                <div id="place-content"></div>
             </div>
             
-            <!-- ABOUT -->
-            <div class="sidebar-section">
-                <h3>
-                    <span data-lang-en>About</span>
-                    <span data-lang-no style="display:none;">Om</span>
-                </h3>
-                <p class="about-text">
-                    <span data-lang-en>A project by Laboratory for Urban Boundaries. Click markers on the map or images below to explore each site.</span>
-                    <span data-lang-no style="display:none;">Et prosjekt av Laboratory for Urban Boundaries. Klikk på markører på kartet eller bilder nedenfor for å utforske hvert sted.</span>
-                </p>
-                <button id="show-intro">
-                    <span data-lang-en>Read full introduction</span>
-                    <span data-lang-no style="display:none;">Les full introduksjon</span>
-                </button>
+            <!-- DOCUMENTS SECTION -->
+            <div class="sidebar-section" id="docs-section">
+                <h3 data-lang="en">Documents</h3>
+                <h3 data-lang="no" style="display:none;">Dokumenter</h3>
+                <p class="docs-info" data-lang="en">Click a marker to see details and documents.</p>
+                <p class="docs-info" data-lang="no" style="display:none;">Klikk på en markør for å se detaljer og dokumenter.</p>
+            </div>
+            
+        </div>
+    </aside>
+    
+    <!-- SIDEBAR TOGGLE -->
+    <button class="sidebar-toggle" id="sidebar-toggle" title="Expand/collapse sidebar">◀</button>
+    
+    <!-- MAP -->
+    <div class="map-container">
+        <div id="map"></div>
+        
+        <!-- LAYER CONTROLS -->
+        <div class="layer-controls">
+            <h4 data-lang="en">Base Map</h4>
+            <h4 data-lang="no" style="display:none;">Basiskart</h4>
+            
+            <label class="layer-option">
+                <input type="radio" name="basemap" value="dark" checked>
+                <span data-lang="en">Dark</span>
+                <span data-lang="no" style="display:none;">Mørk</span>
+            </label>
+            <label class="layer-option">
+                <input type="radio" name="basemap" value="satellite">
+                <span data-lang="en">Satellite</span>
+                <span data-lang="no" style="display:none;">Satellitt</span>
+            </label>
+            <label class="layer-option">
+                <input type="radio" name="basemap" value="topo">
+                <span data-lang="en">Topographic</span>
+                <span data-lang="no" style="display:none;">Topografisk</span>
+            </label>
+            
+            <h4 data-lang="en">Overlays</h4>
+            <h4 data-lang="no" style="display:none;">Overlegg</h4>
+            
+            <label class="layer-option">
+                <input type="checkbox" id="layer-hillshade" checked>
+                <span data-lang="en">Terrain Hillshade</span>
+                <span data-lang="no" style="display:none;">Terrengskygge</span>
+            </label>
+            <label class="layer-option">
+                <input type="checkbox" id="layer-contaminated">
+                <span data-lang="en">Contaminated Ground</span>
+                <span data-lang="no" style="display:none;">Forurenset grunn</span>
+            </label>
+            <label class="layer-option">
+                <input type="checkbox" id="layer-quickclay">
+                <span data-lang="en">Quick Clay Risk</span>
+                <span data-lang="no" style="display:none;">Kvikkleirefare</span>
+            </label>
+            <label class="layer-option">
+                <input type="checkbox" id="layer-surficial">
+                <span data-lang="en">Surficial Deposits</span>
+                <span data-lang="no" style="display:none;">Løsmasser</span>
+            </label>
+            
+            <div class="opacity-slider">
+                <label data-lang="en">Hillshade opacity</label>
+                <label data-lang="no" style="display:none;">Terrengskygge styrke</label>
+                <input type="range" id="hillshade-opacity" min="0" max="100" value="50">
             </div>
         </div>
     </div>
-    
-    <!-- MAP -->
-    <div id="map"></div>
-    
-    <!-- MAP CONTROLS -->
-    <div id="map-controls">
-        <div class="control-section">
-            <h4>
-                <span data-lang-en>Base Map</span>
-                <span data-lang-no style="display:none;">Basiskart</span>
-            </h4>
-            <label><input type="radio" name="basemap" value="dark" checked> 
-                <span data-lang-en>Dark</span>
-                <span data-lang-no style="display:none;">Mørk</span>
-            </label>
-            <label><input type="radio" name="basemap" value="satellite"> 
-                <span data-lang-en>Satellite</span>
-                <span data-lang-no style="display:none;">Satellitt</span>
-            </label>
-            <label><input type="radio" name="basemap" value="topo"> 
-                <span data-lang-en>Topographic</span>
-                <span data-lang-no style="display:none;">Topografisk</span>
-            </label>
-        </div>
-        
-        <div class="control-section">
-            <h4>
-                <span data-lang-en>Overlays</span>
-                <span data-lang-no style="display:none;">Overlegg</span>
-            </h4>
-            <label><input type="checkbox" id="toggle-hillshade" checked> 
-                <span data-lang-en>Terrain Hillshade</span>
-                <span data-lang-no style="display:none;">Terrengskygge</span>
-            </label>
-            <label><input type="checkbox" id="toggle-contaminated"> 
-                <span data-lang-en>Contaminated Ground</span>
-                <span data-lang-no style="display:none;">Forurenset grunn</span>
-            </label>
-        </div>
-        
-        <div class="control-section">
-            <h4>
-                <span data-lang-en>Hillshade opacity</span>
-                <span data-lang-no style="display:none;">Terrengskygge styrke</span>
-            </h4>
-            <input type="range" id="hillshade-opacity" min="0" max="100" value="50">
-        </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close">&times;</button>
+    <div class="lightbox-content">
+        <img id="lightbox-img" src="" alt="">
+        <p class="lightbox-caption" id="lightbox-caption"></p>
     </div>
 </div>
 
