@@ -1,367 +1,221 @@
-// =====================================================
+// ============================================
 // DIRTY BUSINESS - Main Script
-// =====================================================
+// ============================================
 
-// Initialize map
-const map = L.map('map', {
-    center: mapCenter,
-    zoom: mapZoom,
-    zoomControl: true
+let map;
+let currentLang = 'en';
+let placesData = [];
+let markers = [];
+let basemapLayers = {};
+let overlayLayers = {};
+let currentBasemap = 'dark';
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    initLanguageToggle();
+    initIntroOverlay();
 });
 
-// Move zoom control to bottom-left
-map.zoomControl.setPosition('bottomleft');
-
-// =====================================================
-// BASE LAYERS
-// =====================================================
-
-// Satellite layer (default)
-const satelliteLayer = L.tileLayer(basemaps.satellite.url, basemaps.satellite.options);
-satelliteLayer.addTo(map);
-
-// Topo layer (created but not added)
-const topoLayer = L.tileLayer(basemaps.topo.url, basemaps.topo.options);
-
-// Track current basemap
-let currentBasemap = 'satellite';
-let isGrayscale = false;
-
-// =====================================================
-// HILLSHADE OVERLAY (with multiply blend)
-// =====================================================
-
-const hillshadeLayer = L.tileLayer.wms(hillshadeWMS.url, {
-    layers: hillshadeWMS.options.layers,
-    format: hillshadeWMS.options.format,
-    transparent: hillshadeWMS.options.transparent,
-    opacity: hillshadeWMS.options.opacity,
-    attribution: hillshadeWMS.options.attribution,
-    className: 'hillshade-layer' // For CSS blend mode
-});
-hillshadeLayer.addTo(map);
-
-// =====================================================
-// LAYER CONTROLS
-// =====================================================
-
-// Basemap radio buttons
-document.querySelectorAll('input[name="basemap"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        const value = e.target.value;
-        
-        // Remove current basemap
-        if (currentBasemap === 'satellite' || currentBasemap === 'satellite-bw') {
-            map.removeLayer(satelliteLayer);
-        } else if (currentBasemap === 'topo') {
-            map.removeLayer(topoLayer);
-        }
-        
-        // Remove grayscale class
-        const tilePane = document.querySelector('.leaflet-tile-pane');
-        tilePane.classList.remove('grayscale-tiles');
-        
-        // Add new basemap
-        if (value === 'satellite') {
-            satelliteLayer.addTo(map);
-            currentBasemap = 'satellite';
-            isGrayscale = false;
-        } else if (value === 'satellite-bw') {
-            satelliteLayer.addTo(map);
-            // Apply grayscale filter after tiles load
-            setTimeout(() => {
-                const container = satelliteLayer.getContainer();
-                if (container) container.style.filter = 'grayscale(100%) contrast(1.1)';
-            }, 100);
-            currentBasemap = 'satellite-bw';
-            isGrayscale = true;
-        } else if (value === 'topo') {
-            topoLayer.addTo(map);
-            currentBasemap = 'topo';
-            isGrayscale = false;
-         } else if (value === 'none') {
-    currentBasemap = 'none';
-    isGrayscale = false;
-}
-        
-        // Make sure hillshade stays on top
-        if (map.hasLayer(hillshadeLayer)) {
-            hillshadeLayer.bringToFront();
-        }
+function initIntroOverlay() {
+    const enterBtn = document.getElementById('enter-map');
+    const introOverlay = document.getElementById('intro-overlay');
+    const mainContainer = document.getElementById('main-container');
+    
+    enterBtn.addEventListener('click', function() {
+        introOverlay.style.display = 'none';
+        mainContainer.style.display = 'flex';
+        initMap();
+        loadData();
     });
-});
+    
+    // Show intro button in sidebar
+    document.getElementById('show-intro').addEventListener('click', function() {
+        introOverlay.style.display = 'flex';
+        mainContainer.style.display = 'none';
+    });
+}
 
-// Hillshade toggle
-document.getElementById('hillshade-toggle').addEventListener('change', (e) => {
-    if (e.target.checked) {
-        hillshadeLayer.addTo(map);
-    } else {
-        map.removeLayer(hillshadeLayer);
-    }
-});
-
-// Hillshade opacity
-document.getElementById('hillshade-opacity').addEventListener('input', (e) => {
-    hillshadeLayer.setOpacity(e.target.value / 100);
-});
-
-// =====================================================
+// ============================================
 // LANGUAGE TOGGLE
-// =====================================================
+// ============================================
 
-const langToggle = document.getElementById('lang-toggle');
-langToggle.addEventListener('click', () => {
-    currentLang = currentLang === 'en' ? 'no' : 'en';
-    updateLanguage();
-});
-
-function updateLanguage() {
-    // Update toggle button
-    const spans = langToggle.querySelectorAll('span');
-    if (currentLang === 'en') {
-        spans[0].className = 'lang-active';
-        spans[1].className = 'lang-inactive';
-    } else {
-        spans[0].className = 'lang-inactive';
-        spans[1].className = 'lang-active';
-    }
-    
-    // Update all translatable elements
-    document.querySelectorAll('[data-en]').forEach(el => {
-        el.textContent = el.getAttribute(`data-${currentLang}`);
+function initLanguageToggle() {
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const lang = this.dataset.lang;
+            setLanguage(lang);
+        });
     });
 }
 
-// =====================================================
-// SIDEBAR FUNCTIONALITY
-// =====================================================
+function setLanguage(lang) {
+    currentLang = lang;
+    
+    // Update active state on all toggle buttons
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    
+    // Show/hide language-specific content
+    document.querySelectorAll('[data-lang-en]').forEach(el => {
+        el.style.display = lang === 'en' ? '' : 'none';
+    });
+    document.querySelectorAll('[data-lang-no]').forEach(el => {
+        el.style.display = lang === 'no' ? '' : 'none';
+    });
+    
+    // Update gallery if data is loaded
+    if (placesData.length > 0) {
+        updateGallery();
+    }
+}
 
-const sidebarIntro = document.getElementById('sidebar-intro');
-const sidebarPlace = document.getElementById('sidebar-place');
-const backBtn = document.getElementById('back-btn');
+// ============================================
+// MAP INITIALIZATION
+// ============================================
 
-backBtn.addEventListener('click', () => {
-    sidebarPlace.style.display = 'none';
-    sidebarIntro.style.display = 'block';
-});
+function initMap() {
+    map = L.map('map', {
+        center: mapCenter,
+        zoom: mapZoom,
+        zoomControl: false
+    });
+    
+    // Add zoom control to bottom left
+    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+    
+    // Add scale
+    L.control.scale({ metric: true, imperial: false, position: 'bottomleft' }).addTo(map);
+    
+    // Initialize base maps
+    initBasemaps();
+    
+    // Initialize overlays
+    initOverlays();
+    
+    // Set default basemap
+    setBasemap('dark');
+    
+    // Initialize controls
+    initMapControls();
+}
 
-function showPlaceDetails(place) {
-    sidebarIntro.style.display = 'none';
-    sidebarPlace.style.display = 'block';
-    
-    // Name
-    document.getElementById('place-name').textContent = place.Name;
-    
-    // Status
-    const statusEl = document.getElementById('place-status');
-    const status = place.Status ? place.Status.toLowerCase() : 'active';
-    statusEl.textContent = statusLabels[currentLang][status] || status;
-    statusEl.className = `place-status ${status}`;
-    
-    // Gallery
-    const gallery = document.getElementById('place-gallery');
-    gallery.innerHTML = '';
-    
-    const images = [];
-    for (let i = 1; i <= 5; i++) {
-        const imgKey = `Image${i}`;
-        if (place[imgKey]) {
-            images.push({
-                src: place[imgKey],
-                caption: place[`Image${i}_Caption`] || ''
-            });
+function initBasemaps() {
+    for (const [key, config] of Object.entries(basemaps)) {
+        if (config.type === 'wmts') {
+            basemapLayers[key] = L.tileLayer(config.url, config.options);
         }
     }
-    
-    if (images.length > 0) {
-        const mainImg = document.createElement('img');
-        mainImg.src = images[0].src;
-        mainImg.alt = place.Name;
-        mainImg.addEventListener('click', () => openLightbox(images, 0));
-        gallery.appendChild(mainImg);
+}
+
+function initOverlays() {
+    // Hillshade
+    if (overlays.hillshade) {
+        const hillshadeConfig = overlays.hillshade;
+        overlayLayers.hillshade = L.tileLayer.wms(hillshadeConfig.url, hillshadeConfig.options);
         
-        if (images.length > 1) {
-            const thumbs = document.createElement('div');
-            thumbs.className = 'gallery-thumbs';
-            images.forEach((img, idx) => {
-                const thumb = document.createElement('img');
-                thumb.src = img.src;
-                thumb.alt = `Image ${idx + 1}`;
-                thumb.className = idx === 0 ? 'active' : '';
-                thumb.addEventListener('click', () => {
-                    mainImg.src = img.src;
-                    thumbs.querySelectorAll('img').forEach(t => t.classList.remove('active'));
-                    thumb.classList.add('active');
-                });
-                thumbs.appendChild(thumb);
-            });
-            gallery.appendChild(thumbs);
-        }
+        // Apply className for blend mode
+        overlayLayers.hillshade.on('add', function() {
+            const container = this.getContainer();
+            if (container && hillshadeConfig.className) {
+                container.classList.add(hillshadeConfig.className);
+            }
+        });
     }
     
-    // Description
-    const descEl = document.getElementById('place-description');
-    const descKey = currentLang === 'no' ? 'Description_NO' : 'Description';
-    descEl.innerHTML = place[descKey] || place.Description || '';
-    
-    // Details
-    const detailsEl = document.getElementById('place-details');
-    detailsEl.innerHTML = '';
-    
-    const detailFields = [
-        { key: 'Volume', label: { en: 'Volume', no: 'Volum' }, suffix: ' m³' },
-        { key: 'Company', label: { en: 'Operator', no: 'Operatør' } },
-        { key: 'StartYear', label: { en: 'Started', no: 'Startet' } },
-        { key: 'Municipality', label: { en: 'Municipality', no: 'Kommune' } }
-    ];
-    
-    detailFields.forEach(field => {
-        if (place[field.key]) {
-            const item = document.createElement('div');
-            item.className = 'detail-item';
-            item.innerHTML = `
-                <div class="detail-label">${field.label[currentLang]}</div>
-                <div class="detail-value">${place[field.key]}${field.suffix || ''}</div>
-            `;
-            detailsEl.appendChild(item);
-        }
-    });
-    
-    // Documents
-    const docList = document.getElementById('document-list');
-    docList.innerHTML = '';
-    
-    for (let i = 1; i <= 5; i++) {
-        const docKey = `Document${i}`;
-        const docTitleKey = `Document${i}_Title`;
-        if (place[docKey]) {
-            const li = document.createElement('li');
-            const title = place[docTitleKey] || `Document ${i}`;
-            const ext = place[docKey].split('.').pop().toUpperCase();
-            li.innerHTML = `
-                <a href="${place[docKey]}" target="_blank">
-                    <span class="doc-icon">📄</span>
-                    <span>${title}</span>
-                    <span style="color: var(--text-muted); font-size: 11px;">${ext}</span>
-                </a>
-            `;
-            docList.appendChild(li);
-        }
+    // Contaminated ground
+    if (overlays.contaminated) {
+        const contaminatedConfig = overlays.contaminated;
+        overlayLayers.contaminated = L.tileLayer.wms(contaminatedConfig.url, contaminatedConfig.options);
     }
-    
-    // Hide documents section if empty
-    document.getElementById('place-documents').style.display = docList.children.length ? 'block' : 'none';
 }
 
-// =====================================================
-// LIGHTBOX
-// =====================================================
-
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightbox-img');
-const lightboxCaption = document.getElementById('lightbox-caption');
-const lightboxCounter = document.getElementById('lightbox-counter');
-let lightboxImages = [];
-let lightboxIndex = 0;
-
-function openLightbox(images, index) {
-    lightboxImages = images;
-    lightboxIndex = index;
-    updateLightbox();
-    lightbox.classList.add('active');
+function setBasemap(key) {
+    // Remove current basemap
+    if (basemapLayers[currentBasemap]) {
+        map.removeLayer(basemapLayers[currentBasemap]);
+    }
+    
+    // Add new basemap
+    if (basemapLayers[key]) {
+        basemapLayers[key].addTo(map);
+        currentBasemap = key;
+    }
+    
+    // Re-add hillshade on top if enabled
+    const hillshadeToggle = document.getElementById('toggle-hillshade');
+    if (hillshadeToggle && hillshadeToggle.checked && overlayLayers.hillshade) {
+        map.removeLayer(overlayLayers.hillshade);
+        overlayLayers.hillshade.addTo(map);
+    }
 }
 
-function updateLightbox() {
-    lightboxImg.src = lightboxImages[lightboxIndex].src;
-    lightboxCaption.textContent = lightboxImages[lightboxIndex].caption || '';
-    lightboxCounter.textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
+// ============================================
+// MAP CONTROLS
+// ============================================
+
+function initMapControls() {
+    // Basemap radio buttons
+    document.querySelectorAll('input[name="basemap"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            setBasemap(this.value);
+        });
+    });
+    
+    // Hillshade toggle
+    const hillshadeToggle = document.getElementById('toggle-hillshade');
+    if (hillshadeToggle) {
+        // Add hillshade by default
+        overlayLayers.hillshade.addTo(map);
+        
+        hillshadeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                overlayLayers.hillshade.addTo(map);
+            } else {
+                map.removeLayer(overlayLayers.hillshade);
+            }
+        });
+    }
+    
+    // Contaminated ground toggle
+    const contaminatedToggle = document.getElementById('toggle-contaminated');
+    if (contaminatedToggle) {
+        contaminatedToggle.addEventListener('change', function() {
+            if (this.checked) {
+                overlayLayers.contaminated.addTo(map);
+            } else {
+                map.removeLayer(overlayLayers.contaminated);
+            }
+        });
+    }
+    
+    // Hillshade opacity slider
+    const opacitySlider = document.getElementById('hillshade-opacity');
+    if (opacitySlider) {
+        opacitySlider.addEventListener('input', function() {
+            if (overlayLayers.hillshade) {
+                overlayLayers.hillshade.setOpacity(this.value / 100);
+            }
+        });
+    }
 }
 
-document.getElementById('lightbox-close').addEventListener('click', () => {
-    lightbox.classList.remove('active');
-});
-
-document.getElementById('lightbox-prev').addEventListener('click', () => {
-    lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
-    updateLightbox();
-});
-
-document.getElementById('lightbox-next').addEventListener('click', () => {
-    lightboxIndex = (lightboxIndex + 1) % lightboxImages.length;
-    updateLightbox();
-});
-
-// Close on background click
-lightbox.addEventListener('click', (e) => {
-    if (e.target === lightbox) {
-        lightbox.classList.remove('active');
-    }
-});
-
-// Keyboard navigation
-document.addEventListener('keydown', (e) => {
-    if (!lightbox.classList.contains('active')) return;
-    if (e.key === 'Escape') lightbox.classList.remove('active');
-    if (e.key === 'ArrowLeft') {
-        lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
-        updateLightbox();
-    }
-    if (e.key === 'ArrowRight') {
-        lightboxIndex = (lightboxIndex + 1) % lightboxImages.length;
-        updateLightbox();
-    }
-});
-
-// =====================================================
-// LOAD DATA AND CREATE MARKERS
-// =====================================================
-
-const markers = L.layerGroup().addTo(map);
-
-function createMarker(place) {
-    const lat = parseFloat(place.Latitude);
-    const lng = parseFloat(place.Longitude);
-    
-    if (isNaN(lat) || isNaN(lng)) return;
-    
-    const status = place.Status ? place.Status.toLowerCase() : 'active';
-    
-    // Create custom div icon
-    const icon = L.divIcon({
-        className: 'custom-marker-wrapper',
-        html: `<div class="custom-marker ${status}">●</div>`,
-        iconSize: [iconWidth, iconHeight],
-        iconAnchor: [iconWidth / 2, iconHeight / 2]
-    });
-    
-    const marker = L.marker([lat, lng], { icon: icon });
-    
-    marker.on('click', () => {
-        showPlaceDetails(place);
-        map.panTo([lat, lng]);
-    });
-    
-    // Optional: small popup on hover
-    marker.bindTooltip(place.Name, {
-        direction: 'top',
-        offset: [0, -20],
-        className: 'marker-tooltip'
-    });
-    
-    markers.addLayer(marker);
-}
+// ============================================
+// DATA LOADING
+// ============================================
 
 function loadData() {
     Papa.parse(dataLocation, {
         download: true,
         header: true,
+        skipEmptyLines: true,
         complete: function(results) {
-            console.log('Loaded', results.data.length, 'places');
-            results.data.forEach(place => {
-                if (place.Name && place.Latitude && place.Longitude) {
-                    createMarker(place);
-                }
-            });
+            placesData = results.data;
+            addMarkers();
+            updateGallery();
         },
         error: function(err) {
             console.error('Error loading data:', err);
@@ -369,28 +223,266 @@ function loadData() {
     });
 }
 
-// Load data on page load
-loadData();
+// ============================================
+// MARKERS
+// ============================================
 
-// =====================================================
-// URL HASH FOR SHARING
-// =====================================================
+function addMarkers() {
+    placesData.forEach((place, index) => {
+        if (!place.Latitude || !place.Longitude) return;
+        
+        const lat = parseFloat(place.Latitude);
+        const lng = parseFloat(place.Longitude);
+        const status = (place.Status || 'active').toLowerCase();
+        
+        // Create custom icon
+        const icon = L.divIcon({
+            className: 'marker-wrapper',
+            html: `<div class="marker-icon ${status}"></div>`,
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+        });
+        
+        const marker = L.marker([lat, lng], { icon: icon });
+        
+        // Add tooltip
+        marker.bindTooltip(place.Name, {
+            direction: 'right',
+            offset: [10, 0]
+        });
+        
+        // Click handler - open modal
+        marker.on('click', function() {
+            openPlaceModal(place);
+        });
+        
+        marker.addTo(map);
+        markers.push(marker);
+    });
+}
 
-// Check for place in URL hash on load
-window.addEventListener('load', () => {
-    const hash = decodeURIComponent(window.location.hash.slice(1));
-    if (hash) {
-        // Will need to match with loaded data
-        console.log('Looking for place:', hash);
+// ============================================
+// GALLERY
+// ============================================
+
+function updateGallery() {
+    const gallery = document.getElementById('gallery-grid');
+    gallery.innerHTML = '';
+    
+    placesData.forEach((place, index) => {
+        const item = document.createElement('div');
+        item.className = 'gallery-item';
+        
+        const status = (place.Status || 'active').toLowerCase();
+        const name = place.Name || 'Unknown';
+        const image = place.Image1 || '';
+        
+        if (image) {
+            item.innerHTML = `
+                <img src="${image}" alt="${name}" onerror="this.style.display='none'">
+                <span class="gallery-status ${status}"></span>
+                <span class="gallery-label">${name}</span>
+            `;
+        } else {
+            item.classList.add('no-image');
+            item.innerHTML = `
+                <span class="gallery-status ${status}"></span>
+                <span class="gallery-label">${name}</span>
+            `;
+        }
+        
+        // Click to open modal
+        item.addEventListener('click', function() {
+            openPlaceModal(place);
+            
+            // Also fly to location on map
+            if (place.Latitude && place.Longitude) {
+                map.flyTo([parseFloat(place.Latitude), parseFloat(place.Longitude)], 14);
+            }
+        });
+        
+        gallery.appendChild(item);
+    });
+}
+
+// ============================================
+// POPUP MODAL
+// ============================================
+
+function openPlaceModal(place) {
+    const modal = document.getElementById('popup-modal');
+    const modalBody = document.getElementById('modal-body');
+    
+    const status = (place.Status || 'active').toLowerCase();
+    const statusLabel = {
+        'active': currentLang === 'en' ? 'Active' : 'Aktiv',
+        'inactive': currentLang === 'en' ? 'Inactive' : 'Inaktiv',
+        'illegal': currentLang === 'en' ? 'Illegal/Suspected' : 'Ulovlig/Mistenkt'
+    };
+    
+    const description = currentLang === 'no' && place.Description_NO 
+        ? place.Description_NO 
+        : place.Description || '';
+    
+    // Build images HTML
+    let imagesHtml = '';
+    const images = [];
+    for (let i = 1; i <= 5; i++) {
+        if (place[`Image${i}`]) {
+            images.push({
+                src: place[`Image${i}`],
+                caption: place[`Image${i}_Caption`] || ''
+            });
+        }
     }
-});
+    
+    if (images.length > 0) {
+        imagesHtml = `
+            <div class="modal-images">
+                ${images.map(img => `
+                    <img src="${img.src}" alt="${img.caption}" 
+                         onclick="openLightbox('${img.src}', '${img.caption.replace(/'/g, "\\'")}')"
+                         onerror="this.style.display='none'">
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    // Build documents HTML
+    let docsHtml = '';
+    const docs = [];
+    for (let i = 1; i <= 5; i++) {
+        if (place[`Document${i}`]) {
+            docs.push({
+                url: place[`Document${i}`],
+                title: place[`Document${i}_Title`] || `Document ${i}`
+            });
+        }
+    }
+    
+    if (docs.length > 0) {
+        docsHtml = `
+            <div class="modal-documents">
+                <h4>${currentLang === 'en' ? 'Documents' : 'Dokumenter'}</h4>
+                ${docs.map(doc => `
+                    <a href="${doc.url}" target="_blank" class="modal-doc-link">${doc.title}</a>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    // Build meta HTML
+    let metaHtml = '<div class="modal-meta">';
+    
+    if (place.Volume) {
+        metaHtml += `
+            <div class="modal-meta-item">
+                <span class="modal-meta-label">${currentLang === 'en' ? 'Volume' : 'Volum'}</span>
+                <span class="modal-meta-value">${parseInt(place.Volume).toLocaleString()} m³</span>
+            </div>
+        `;
+    }
+    
+    if (place.Company) {
+        metaHtml += `
+            <div class="modal-meta-item">
+                <span class="modal-meta-label">${currentLang === 'en' ? 'Operator' : 'Operatør'}</span>
+                <span class="modal-meta-value">${place.Company}</span>
+            </div>
+        `;
+    }
+    
+    if (place.StartYear) {
+        metaHtml += `
+            <div class="modal-meta-item">
+                <span class="modal-meta-label">${currentLang === 'en' ? 'Started' : 'Startet'}</span>
+                <span class="modal-meta-value">${place.StartYear}</span>
+            </div>
+        `;
+    }
+    
+    if (place.Municipality) {
+        metaHtml += `
+            <div class="modal-meta-item">
+                <span class="modal-meta-label">${currentLang === 'en' ? 'Municipality' : 'Kommune'}</span>
+                <span class="modal-meta-value">${place.Municipality}</span>
+            </div>
+        `;
+    }
+    
+    metaHtml += '</div>';
+    
+    // Directions link
+    let directionsHtml = '';
+    if (place.GoogleMapsLink) {
+        directionsHtml = `
+            <a href="${place.GoogleMapsLink}" target="_blank" class="modal-directions">
+                ${currentLang === 'en' ? '→ Get directions' : '→ Få veibeskrivelse'}
+            </a>
+        `;
+    }
+    
+    // Assemble modal content
+    modalBody.innerHTML = `
+        <div class="modal-header">
+            <h2>${place.Name}</h2>
+            <span class="modal-status ${status}">${statusLabel[status] || status}</span>
+        </div>
+        ${imagesHtml}
+        <div class="modal-description">${description}</div>
+        ${metaHtml}
+        ${docsHtml}
+        ${directionsHtml}
+    `;
+    
+    modal.style.display = 'block';
+    
+    // Close handlers
+    const closeBtn = modal.querySelector('.modal-close');
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    };
+    
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
 
-// =====================================================
-// SCALE CONTROL
-// =====================================================
+// ============================================
+// LIGHTBOX
+// ============================================
 
-L.control.scale({
-    metric: true,
-    imperial: false,
-    position: 'bottomleft'
-}).addTo(map);
+function openLightbox(src, caption) {
+    const lightbox = document.getElementById('lightbox');
+    const img = document.getElementById('lightbox-img');
+    const captionEl = document.getElementById('lightbox-caption');
+    
+    img.src = src;
+    captionEl.textContent = caption || '';
+    lightbox.classList.add('active');
+    
+    // Close handlers
+    const closeBtn = lightbox.querySelector('.lightbox-close');
+    closeBtn.onclick = function() {
+        lightbox.classList.remove('active');
+    };
+    
+    lightbox.onclick = function(e) {
+        if (e.target === lightbox || e.target === img) {
+            lightbox.classList.remove('active');
+        }
+    };
+    
+    // ESC key
+    document.addEventListener('keydown', function escHandler(e) {
+        if (e.key === 'Escape') {
+            lightbox.classList.remove('active');
+            document.removeEventListener('keydown', escHandler);
+        }
+    });
+}
+
+// Make openLightbox global for inline onclick
+window.openLightbox = openLightbox;

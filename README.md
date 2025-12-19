@@ -1,138 +1,167 @@
-# Dirty Business / Skitne Penger
+# DIRTY_BUSINESS
 
-An interactive investigative map documenting mass movement operations (soil, rock, construction materials) in the Oslo region.
-
-![Preview](preview.png)
+An interactive investigative map documenting mass movement operations in the Oslo region.
 
 ## 🌐 Live Site
 
-**https://boundarieslab.github.io/DirtyBusiness/**
+**https://dirtybusiness.no**
 
 ## Features
 
-- **Satellite + Hillshade blend** - Terrain multiply overlay for dramatic effect
-- **Black & White mode** - Desaturated satellite view
-- **Bilingual** - English/Norwegian toggle
-- **Interactive sidebar** - Click markers to see company info, photos, documents
-- **Image gallery** - Lightbox for full-screen photo viewing
-- **Document links** - PDFs, reports linked per location
-- **Easy data management** - CSV file or Google Sheets
+- **Dark basemap** as default (Kartverket grayscale)
+- **Satellite imagery** option
+- **WMS overlay layers**: Terrain hillshade, Contaminated ground (Miljødirektoratet)
+- **Popup modals** when clicking markers
+- **Full-screen intro page** with project description
+- **Gallery view** in sidebar with thumbnails
+- **Bilingual** English/Norwegian
+- **Google Drive integration** for images and documents
 
-## File Structure
+---
+
+## 📁 File Structure
 
 ```
 DirtyBusiness/
 ├── index.html          # Main page
-├── style.css           # Dark theme styling
-├── script.js           # Map logic & interactivity
-├── settings.js         # Configuration (center, zoom, sources)
-├── data/
-│   └── places.csv      # Location data
-├── media/              # Images for each location
-│   └── (your photos)
-└── docs/               # PDFs and documents
-    └── (your files)
+├── style.css           # Dark terminal theme
+├── script.js           # Map logic & interactions
+├── settings.js         # Configuration
+└── data/
+    └── places.csv      # Location data
 ```
 
-## Data Format (places.csv)
+---
 
-| Column | Description |
-|--------|-------------|
-| Name | Location name |
-| Latitude | Decimal degrees |
-| Longitude | Decimal degrees |
-| Status | `active`, `inactive`, or `illegal` |
-| Description | English description (HTML allowed) |
-| Description_NO | Norwegian description |
-| Company | Operator name |
-| Municipality | Kommune |
-| Volume | Cubic meters (number) |
-| StartYear | Year operation began |
-| Image1-5 | Path to images (e.g., `media/photo.jpg`) |
-| Image1-5_Caption | Caption for each image |
-| Document1-5 | Path to PDFs (e.g., `docs/permit.pdf`) |
-| Document1-5_Title | Display name for document |
-| GoogleMapsLink | Link for directions |
+## 🖼️ Using Google Drive for Images & PDFs
 
-## Using Google Sheets Instead of CSV
+Instead of hosting files locally, you can link directly to files in Google Drive.
 
-1. Create a Google Sheet matching the column format above
-2. **Share** → Anyone with link can view
-3. **File** → Publish to web → CSV
-4. Copy the published URL
-5. In `settings.js`, change:
+### Step 1: Upload to Google Drive
 
-```javascript
-const dataLocation = 'https://docs.google.com/spreadsheets/d/e/YOUR_ID/pub?gid=0&single=true&output=csv';
+Upload your images and PDFs to a folder in Google Drive.
+
+### Step 2: Share the Files
+
+For each file:
+1. Right-click the file
+2. Click **Share**
+3. Change to **Anyone with the link can view**
+4. Click **Copy link**
+
+### Step 3: Convert the Link
+
+The share link looks like:
+```
+https://drive.google.com/file/d/1ABC123xyz789/view?usp=sharing
 ```
 
-## Adding New Locations
+**For images**, convert to:
+```
+https://drive.google.com/uc?export=view&id=1ABC123xyz789
+```
 
-### Option A: Edit CSV directly
-1. Edit `data/places.csv` in GitHub or locally
-2. Add a new row with coordinates and details
-3. Upload any images to `media/` folder
-4. Upload any documents to `docs/` folder
-5. Commit changes
+**For PDFs**, convert to:
+```
+https://drive.google.com/file/d/1ABC123xyz789/preview
+```
 
-### Option B: Use Google Sheets
-1. Add a new row to your linked Google Sheet
-2. Changes appear automatically (after page refresh)
+### Step 4: Add to CSV
 
-## Custom Domain Setup
+Put these URLs in your `places.csv` file:
 
-1. Buy a domain (e.g., from domeneshop.no)
-2. In GitHub: Settings → Pages → Custom domain → enter your domain
-3. At your registrar, add DNS records:
+| Column | Example Value |
+|--------|--------------|
+| Image1 | `https://drive.google.com/uc?export=view&id=1ABC123xyz789` |
+| Document1 | `https://drive.google.com/file/d/1XYZ789abc123/preview` |
 
-| Type | Name | Value |
-|------|------|-------|
-| A | @ | 185.199.108.153 |
-| A | @ | 185.199.109.153 |
-| A | @ | 185.199.110.153 |
-| A | @ | 185.199.111.153 |
-| CNAME | www | boundarieslab.github.io |
+---
 
-4. Wait 10-30 minutes for DNS propagation
-5. Check "Enforce HTTPS" in GitHub Pages settings
+## 📊 CSV Data Format
 
-## Map Layers
+| Column | Description | Example |
+|--------|-------------|---------|
+| Name | Location name | Massedeponi Nord |
+| Latitude | Decimal degrees | 59.9669 |
+| Longitude | Decimal degrees | 11.0456 |
+| Status | `active`, `inactive`, or `illegal` | active |
+| Description | English text (HTML ok) | Large fill operation... |
+| Description_NO | Norwegian text | Stort deponi... |
+| Company | Operator name | Masseflyt AS |
+| Municipality | Kommune | Lillestrøm |
+| Volume | Cubic meters | 450000 |
+| StartYear | Year started | 2018 |
+| Image1 | URL to image | (Google Drive URL) |
+| Image1_Caption | Caption text | Aerial view 2023 |
+| Image2-5 | Additional images | ... |
+| Document1 | URL to PDF | (Google Drive URL) |
+| Document1_Title | Document name | Environmental Permit |
+| Document2-5 | Additional docs | ... |
+| GoogleMapsLink | Link for directions | https://maps.google.com/?q=59.9669,11.0456 |
 
-**Base maps (Kartverket):**
-- Satellite (Norge i Bilder orthophoto)
-- Satellite B&W (grayscale filter)
-- Topographic map
+---
 
-**Overlays:**
-- DTM Hillshade with multiply blend mode
+## 🗺️ WMS Layers Included
 
-## Customization
+### Contaminated Ground (Forurenset grunn)
+From Miljødirektoratet - shows registered contaminated sites and landfills.
+
+**WMS URL:** 
+```
+https://kart.miljodirektoratet.no/arcgis/services/grunnforurensning2/MapServer/WMSServer
+```
+
+### Terrain Hillshade
+From Kartverket - DTM-based terrain relief.
+
+**WMS URL:**
+```
+https://wms.geonorge.no/skwms1/wms.hoyde-dtm-nhm-25833
+```
+
+---
+
+## ⚙️ Customization
 
 ### Change map center
 In `settings.js`:
 ```javascript
-const mapCenter = [59.95, 11.05];  // lat, lng
+const mapCenter = [59.95, 11.05];  // [lat, lng]
 const mapZoom = 10;
 ```
 
-### Adjust hillshade opacity
-In `settings.js`:
+### Use Google Sheets instead of CSV
+1. Create a Google Sheet with the same columns
+2. File → Share → Publish to web → CSV
+3. Copy the URL
+4. In `settings.js`:
 ```javascript
-opacity: 0.4,  // 0 to 1
+const dataLocation = 'https://docs.google.com/spreadsheets/d/e/YOUR_ID/pub?output=csv';
 ```
 
 ### Add more WMS layers
-In `settings.js`, add to the basemaps or overlay objects and update `script.js`.
+In `settings.js`, add to the `overlays` object and update `script.js` to add toggle controls.
+
+---
+
+## 🚀 Deployment
+
+Files are hosted on GitHub Pages with custom domain:
+- Repository: https://github.com/boundarieslab/DirtyBusiness
+- Custom domain: dirtybusiness.no
+
+To update:
+1. Edit files locally or in GitHub
+2. Commit and push changes
+3. Changes go live automatically
+
+---
 
 ## Credits
 
-- **Map tiles**: [Kartverket](https://kartverket.no/), [Norge i Bilder](https://norgeibilder.no/)
+- **Map tiles**: [Kartverket](https://kartverket.no/)
+- **Environmental data**: [Miljødirektoratet](https://miljodirektoratet.no/)
 - **Framework**: [Leaflet.js](https://leafletjs.com/)
-- **Template inspired by**: [HandsOnDataViz](https://github.com/HandsOnDataViz/leaflet-point-map-sidebar)
-
-## License
-
-MIT License - Free to use and modify
 
 ---
 

@@ -1,69 +1,99 @@
-// =====================================================
+// ============================================
 // DIRTY BUSINESS - Settings
-// =====================================================
+// ============================================
 
-// Map initial center (Romerike/Oslo region)
+// Map center and zoom
 const mapCenter = [59.95, 11.05];
 const mapZoom = 10;
 
-// Data source - can be local CSV or Google Sheets published CSV
-// To use Google Sheets: File > Publish to web > CSV, then paste URL here
-const dataLocation = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnON3VXUjMLUIfRVxtv_3UOAt_Juyx5ShiNkmoGWs7sQWaNqpK6eh3usIMg44OswkVg8iNa5VdhFWv/pub?output=csv';
+// Data source - can be local CSV or Google Sheets published URL
+// For Google Sheets: File → Share → Publish to web → CSV
+const dataLocation = 'data/places.csv';
 
-// Alternative: Google Sheets URL (uncomment and replace with your own)
-// const dataLocation = 'https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?gid=0&single=true&output=csv';
+// ============================================
+// BASE MAPS
+// ============================================
 
-// Marker icon settings
-const iconWidth = 36;
-const iconHeight = 36;
-
-// Basemap tile sources
 const basemaps = {
-    // Kartverket Orthophoto (satellite)
-    satellite: {
-        url: 'https://opencache{s}.statkart.no/gatekeeper/gk/gk.open_nib_web_mercator_wmts_v2?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=Nibcache_web_mercator_v2&STYLE=default&FORMAT=image/jpgpng&tileMatrixSet=default028mm&tileMatrix={z}&tileRow={y}&tileCol={x}',
+    // Dark grayscale topographic map (default)
+    dark: {
+        type: 'wmts',
+        url: 'https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4graatone&zoom={z}&x={x}&y={y}',
         options: {
-            subdomains: ['', '2', '3'],
-            attribution: '© <a href="https://www.norgeibilder.no/">Geovekst</a>',
-            maxZoom: 19
+            attribution: '&copy; <a href="https://kartverket.no">Kartverket</a>',
+            maxZoom: 20
         }
     },
     
-    // Kartverket Topographic
-    topo: {
-        url: 'https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png',
+    // Satellite imagery
+    satellite: {
+        type: 'wmts',
+        url: 'https://opencache{s}.statkart.no/gatekeeper/gk/gk.open_nib_web_mercator_wmts_v2?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=Nibcache_web_mercator_v2&STYLE=default&FORMAT=image/jpgpng&TILEMATRIXSET=default028mm&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',
         options: {
-            attribution: '© <a href="https://www.kartverket.no/">Kartverket</a>',
-            maxZoom: 18
+            subdomains: ['', '2', '3'],
+            attribution: '&copy; <a href="https://norgeibilder.no">Norge i Bilder</a>',
+            maxZoom: 20
+        }
+    },
+    
+    // Topographic color map
+    topo: {
+        type: 'wmts',
+        url: 'https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4&zoom={z}&x={x}&y={y}',
+        options: {
+            attribution: '&copy; <a href="https://kartverket.no">Kartverket</a>',
+            maxZoom: 20
         }
     }
 };
 
-// Hillshade WMS overlay
-const hillshadeWMS = {
-    url: 'https://wms.geonorge.no/skwms1/wms.hoyde-dtm-nhm-25833',
-    options: {
-        layers: 'NHM_DTM_25833:skyggerelieff',
-        format: 'image/png',
-        transparent: true,
-        opacity: 0.7,
-        attribution: '© <a href="https://www.kartverket.no/">Kartverket</a>'
-    }
-};
+// ============================================
+// OVERLAY LAYERS
+// ============================================
 
-// Status translations
-const statusLabels = {
-    en: {
-        active: 'Active',
-        inactive: 'Closed',
-        illegal: 'Suspected Illegal'
+const overlays = {
+    // DTM Hillshade
+    hillshade: {
+        type: 'wms',
+        url: 'https://wms.geonorge.no/skwms1/wms.hoyde-dtm-nhm-25833',
+        options: {
+            layers: 'nhm_dtm_25833_terrengskyggerelieff',
+            format: 'image/png',
+            transparent: true,
+            opacity: 0.5,
+            attribution: '&copy; <a href="https://kartverket.no">Kartverket</a>'
+        },
+        className: 'hillshade-layer'
     },
-    no: {
-        active: 'Aktiv',
-        inactive: 'Stengt',
-        illegal: 'Mistenkt Ulovlig'
+    
+    // Contaminated ground (forurenset grunn)
+    contaminated: {
+        type: 'wms',
+        url: 'https://kart.miljodirektoratet.no/arcgis/services/grunnforurensning2/MapServer/WMSServer',
+        options: {
+            layers: '0,1,2,3',
+            format: 'image/png',
+            transparent: true,
+            opacity: 0.7,
+            attribution: '&copy; <a href="https://miljodirektoratet.no">Miljødirektoratet</a>'
+        }
     }
 };
 
-// Current language (default)
-let currentLang = 'en';
+// ============================================
+// GOOGLE DRIVE HELPER
+// ============================================
+// To use images from Google Drive:
+// 1. Upload image to Google Drive
+// 2. Right-click → Share → Anyone with link can view
+// 3. Copy the file ID from the URL (the long string after /d/)
+// 4. Use this format in your CSV:
+//    https://drive.google.com/uc?export=view&id=YOUR_FILE_ID
+//
+// Example:
+// If your share link is: https://drive.google.com/file/d/1ABC123xyz/view
+// Your image URL should be: https://drive.google.com/uc?export=view&id=1ABC123xyz
+
+// For PDFs:
+// Use the same format, or link directly to the Google Drive preview:
+// https://drive.google.com/file/d/YOUR_FILE_ID/preview
