@@ -3,23 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DIRTY_BUSINESS</title>
+    <title>DIRTY BUSINESS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
+<!-- GRID OVERLAY -->
+<div class="grid-overlay"></div>
+
 <!-- HEADER -->
 <header class="site-header">
     <div class="logo-container">
-        <h1 class="logo-text">DIRTY_BUSINESS</h1>
-        <p class="subtitle">
-            <span data-lang="en">// mapping mass movements in Oslo region</span>
-            <span data-lang="no" style="display:none;">// kartlegger massebevegelser i Oslo-regionen</span>
-        </p>
+        <h1 class="logo-text">DIRTY BUSINESS</h1>
     </div>
+    <nav class="main-nav">
+        <button class="nav-btn active" data-panel="map">
+            <span class="nav-icon">◫</span>
+            <span data-lang="en">Map</span>
+            <span data-lang="no" style="display:none;">Kart</span>
+        </button>
+        <button class="nav-btn" data-panel="images">
+            <span class="nav-icon">▣</span>
+            <span data-lang="en">Images</span>
+            <span data-lang="no" style="display:none;">Bilder</span>
+        </button>
+        <button class="nav-btn" data-panel="video">
+            <span class="nav-icon">▶</span>
+            <span data-lang="en">Video</span>
+            <span data-lang="no" style="display:none;">Video</span>
+        </button>
+        <button class="nav-btn" data-panel="people">
+            <span class="nav-icon">◉</span>
+            <span data-lang="en">People</span>
+            <span data-lang="no" style="display:none;">Personer</span>
+        </button>
+        <button class="nav-btn" data-panel="credits">
+            <span class="nav-icon">✦</span>
+            <span data-lang="en">Credits</span>
+            <span data-lang="no" style="display:none;">Kreditt</span>
+        </button>
+    </nav>
     <div class="header-controls">
         <button class="lang-toggle" id="lang-toggle">
             <span class="lang-active">EN</span> | <span class="lang-inactive">NO</span>
@@ -34,39 +60,99 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-content">
             
-            <!-- ABOUT SECTION - Expandable -->
-            <div class="sidebar-section">
-                <h2 data-lang="en">About</h2>
-                <h2 data-lang="no" style="display:none;">Om prosjektet</h2>
+            <!-- STATISTICS -->
+            <div class="stats-bar" id="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-total">0</span>
+                    <span class="stat-label" data-lang="en">Sites</span>
+                    <span class="stat-label" data-lang="no" style="display:none;">Steder</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-active">0</span>
+                    <span class="stat-label" data-lang="en">Active</span>
+                    <span class="stat-label" data-lang="no" style="display:none;">Aktive</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-illegal">0</span>
+                    <span class="stat-label" data-lang="en">Illegal</span>
+                    <span class="stat-label" data-lang="no" style="display:none;">Ulovlig</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-volume">0</span>
+                    <span class="stat-label">m³</span>
+                </div>
+            </div>
+
+            <!-- SEARCH -->
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search locations, companies...">
+                <span class="search-icon">⌕</span>
+            </div>
+
+            <!-- FILTERS -->
+            <div class="filters-section">
+                <h3 data-lang="en">Filters</h3>
+                <h3 data-lang="no" style="display:none;">Filtre</h3>
+                <div class="filter-group">
+                    <label class="filter-chip active" data-filter="all">
+                        <span data-lang="en">All</span>
+                        <span data-lang="no" style="display:none;">Alle</span>
+                    </label>
+                    <label class="filter-chip" data-filter="active">
+                        <span class="chip-dot active"></span>
+                        <span data-lang="en">Active</span>
+                        <span data-lang="no" style="display:none;">Aktiv</span>
+                    </label>
+                    <label class="filter-chip" data-filter="inactive">
+                        <span class="chip-dot inactive"></span>
+                        <span data-lang="en">Inactive</span>
+                        <span data-lang="no" style="display:none;">Inaktiv</span>
+                    </label>
+                    <label class="filter-chip" data-filter="illegal">
+                        <span class="chip-dot illegal"></span>
+                        <span data-lang="en">Illegal</span>
+                        <span data-lang="no" style="display:none;">Ulovlig</span>
+                    </label>
+                </div>
                 
-                <p class="about-intro" data-lang="en">
+                <!-- Municipality filter -->
+                <select id="filter-municipality" class="filter-select">
+                    <option value="all" data-lang="en">All Municipalities</option>
+                </select>
+
+                <!-- Year filter -->
+                <div class="year-filter">
+                    <label data-lang="en">From year: </label>
+                    <label data-lang="no" style="display:none;">Fra år: </label>
+                    <input type="range" id="filter-year" min="2000" max="2025" value="2000">
+                    <span id="year-value">2000+</span>
+                </div>
+            </div>
+            
+            <!-- ABOUT SECTION -->
+            <div class="sidebar-section">
+                <h3 data-lang="en">About</h3>
+                <h3 data-lang="no" style="display:none;">Om</h3>
+                <p class="about-text" data-lang="en">
                     Documenting mass movement operations around Oslo — where the dirt goes, who profits.
                 </p>
-                <p class="about-intro" data-lang="no" style="display:none;">
+                <p class="about-text" data-lang="no" style="display:none;">
                     Dokumenterer massebevegelser rundt Oslo — hvor massene havner, hvem som tjener.
                 </p>
-                
                 <div class="about-expanded" id="about-expanded" style="display:none;">
                     <p data-lang="en">
                         Every year, millions of cubic meters of soil, rock, and construction materials are excavated, transported, and deposited across the Oslo region. Behind these operations lies a complex web of permits, companies, and environmental impacts.
                     </p>
-                    <p data-lang="en">
-                        Some operations are legal and well-regulated. Others operate in grey zones. Some are outright illegal. This map aims to make visible what is usually hidden.
-                    </p>
                     <p data-lang="no" style="display:none;">
                         Hvert år graves det ut, transporteres og deponeres millioner av kubikkmeter jord, stein og byggematerialer i Oslo-regionen. Bak disse operasjonene ligger et komplekst nett av tillatelser, selskaper og miljøpåvirkninger.
                     </p>
-                    <p data-lang="no" style="display:none;">
-                        Noen operasjoner er lovlige og godt regulerte. Andre opererer i gråsoner. Noen er direkte ulovlige. Dette kartet har som mål å synliggjøre det som vanligvis er skjult.
-                    </p>
                 </div>
-                
                 <button class="expand-btn" id="expand-about">
                     <span data-lang="en">Read more ↓</span>
                     <span data-lang="no" style="display:none;">Les mer ↓</span>
                 </button>
             </div>
-            
+
             <!-- LEGEND -->
             <div class="sidebar-section">
                 <h3 data-lang="en">Legend</h3>
@@ -89,32 +175,50 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- PLACE DETAILS (hidden by default) -->
+
+            <!-- PLACE DETAILS -->
             <div id="place-details" style="display:none;">
                 <button class="back-btn" id="back-btn">
-                    <span data-lang="en">← Back to overview</span>
-                    <span data-lang="no" style="display:none;">← Tilbake til oversikt</span>
+                    <span data-lang="en">← Back to list</span>
+                    <span data-lang="no" style="display:none;">← Tilbake</span>
                 </button>
                 <div id="place-content"></div>
             </div>
-            
-            <!-- DOCUMENTS SECTION -->
-            <div class="sidebar-section" id="docs-section">
-                <h3 data-lang="en">Documents</h3>
-                <h3 data-lang="no" style="display:none;">Dokumenter</h3>
-                <p class="docs-info" data-lang="en">Click a marker to see details and documents.</p>
-                <p class="docs-info" data-lang="no" style="display:none;">Klikk på en markør for å se detaljer og dokumenter.</p>
+
+            <!-- PLACES LIST -->
+            <div class="sidebar-section" id="places-list-section">
+                <h3 data-lang="en">Locations</h3>
+                <h3 data-lang="no" style="display:none;">Steder</h3>
+                <div id="places-list" class="places-list"></div>
             </div>
-            
+
+            <!-- ACTION BUTTONS -->
+            <div class="action-buttons">
+                <button class="action-btn" id="btn-download">
+                    <span class="btn-icon">↓</span>
+                    <span data-lang="en">Download</span>
+                    <span data-lang="no" style="display:none;">Last ned</span>
+                </button>
+                <button class="action-btn" id="btn-report">
+                    <span class="btn-icon">!</span>
+                    <span data-lang="en">Report</span>
+                    <span data-lang="no" style="display:none;">Rapporter</span>
+                </button>
+                <button class="action-btn" id="btn-share">
+                    <span class="btn-icon">⎘</span>
+                    <span data-lang="en">Share</span>
+                    <span data-lang="no" style="display:none;">Del</span>
+                </button>
+            </div>
+
         </div>
     </aside>
     
     <!-- SIDEBAR TOGGLE -->
-    <button class="sidebar-toggle" id="sidebar-toggle" title="Expand/collapse sidebar">◀</button>
-    
-    <!-- MAP -->
-    <div class="map-container">
+    <button class="sidebar-toggle" id="sidebar-toggle">◀</button>
+
+    <!-- MAP PANEL -->
+    <div class="panel map-panel active" id="panel-map">
         <div id="map"></div>
         
         <!-- LAYER CONTROLS -->
@@ -142,41 +246,158 @@
             <h4 data-lang="no" style="display:none;">Overlegg</h4>
             
             <label class="layer-option">
-                <input type="checkbox" id="layer-hillshade" checked>
-                <span data-lang="en">Terrain Hillshade</span>
+                <input type="checkbox" id="layer-hillshade">
+                <span data-lang="en">Hillshade</span>
                 <span data-lang="no" style="display:none;">Terrengskygge</span>
             </label>
             <label class="layer-option">
                 <input type="checkbox" id="layer-contaminated">
-                <span data-lang="en">Contaminated Ground</span>
-                <span data-lang="no" style="display:none;">Forurenset grunn</span>
+                <span data-lang="en">Contaminated</span>
+                <span data-lang="no" style="display:none;">Forurenset</span>
             </label>
             <label class="layer-option">
                 <input type="checkbox" id="layer-quickclay">
-                <span data-lang="en">Quick Clay Risk</span>
-                <span data-lang="no" style="display:none;">Kvikkleirefare</span>
+                <span data-lang="en">Quick Clay</span>
+                <span data-lang="no" style="display:none;">Kvikkleire</span>
             </label>
-            <label class="layer-option">
-                <input type="checkbox" id="layer-surficial">
-                <span data-lang="en">Surficial Deposits</span>
-                <span data-lang="no" style="display:none;">Løsmasser</span>
-            </label>
-            
-            <div class="opacity-slider">
-                <label data-lang="en">Hillshade opacity</label>
-                <label data-lang="no" style="display:none;">Terrengskygge styrke</label>
-                <input type="range" id="hillshade-opacity" min="0" max="100" value="50">
-            </div>
+
+            <h4 data-lang="en">Tools</h4>
+            <h4 data-lang="no" style="display:none;">Verktøy</h4>
+            <button class="tool-btn" id="btn-measure">
+                <span data-lang="en">📏 Measure</span>
+                <span data-lang="no" style="display:none;">📏 Mål</span>
+            </button>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="timeline-bar" id="timeline-bar">
+            <span class="timeline-label">2000</span>
+            <input type="range" id="timeline-slider" min="2000" max="2025" value="2025">
+            <span class="timeline-label">2025</span>
         </div>
     </div>
+
+    <!-- IMAGES PANEL -->
+    <div class="panel images-panel" id="panel-images">
+        <div class="panel-header">
+            <h2 data-lang="en">Image Gallery</h2>
+            <h2 data-lang="no" style="display:none;">Bildegalleri</h2>
+        </div>
+        <div class="gallery-grid" id="gallery-grid"></div>
+    </div>
+
+    <!-- VIDEO PANEL -->
+    <div class="panel video-panel" id="panel-video">
+        <div class="panel-header">
+            <h2 data-lang="en">Videos</h2>
+            <h2 data-lang="no" style="display:none;">Videoer</h2>
+        </div>
+        <div class="video-grid" id="video-grid">
+            <p class="placeholder-text" data-lang="en">Video content coming soon...</p>
+            <p class="placeholder-text" data-lang="no" style="display:none;">Videoinnhold kommer snart...</p>
+        </div>
+    </div>
+
+    <!-- PEOPLE PANEL -->
+    <div class="panel people-panel" id="panel-people">
+        <div class="panel-header">
+            <h2 data-lang="en">People & Companies</h2>
+            <h2 data-lang="no" style="display:none;">Personer & Selskaper</h2>
+        </div>
+        <div class="people-content" id="people-content">
+            <div class="company-list" id="company-list"></div>
+        </div>
+    </div>
+
+    <!-- CREDITS PANEL -->
+    <div class="panel credits-panel" id="panel-credits">
+        <div class="panel-header">
+            <h2 data-lang="en">Credits & References</h2>
+            <h2 data-lang="no" style="display:none;">Kreditt & Referanser</h2>
+        </div>
+        <div class="credits-content">
+            <section class="credit-section">
+                <h3 data-lang="en">Data Sources</h3>
+                <h3 data-lang="no" style="display:none;">Datakilder</h3>
+                <ul>
+                    <li><a href="https://kartverket.no" target="_blank">Kartverket</a> - Base maps, DTM hillshade</li>
+                    <li><a href="https://miljodirektoratet.no" target="_blank">Miljødirektoratet</a> - Contaminated ground data</li>
+                    <li><a href="https://nve.no" target="_blank">NVE</a> - Quick clay risk zones</li>
+                    <li><a href="https://ngu.no" target="_blank">NGU</a> - Geological surveys</li>
+                </ul>
+            </section>
+            <section class="credit-section">
+                <h3 data-lang="en">Technology</h3>
+                <h3 data-lang="no" style="display:none;">Teknologi</h3>
+                <ul>
+                    <li><a href="https://leafletjs.com" target="_blank">Leaflet</a> - Interactive maps</li>
+                    <li><a href="https://carto.com" target="_blank">CARTO</a> - Dark basemap tiles</li>
+                    <li><a href="https://www.papaparse.com" target="_blank">PapaParse</a> - CSV parsing</li>
+                </ul>
+            </section>
+            <section class="credit-section">
+                <h3 data-lang="en">Project</h3>
+                <h3 data-lang="no" style="display:none;">Prosjekt</h3>
+                <p data-lang="en">
+                    DIRTY BUSINESS is a project by <a href="#">Laboratory for Urban Boundaries</a>, 
+                    investigating mass movement operations in the Oslo region.
+                </p>
+                <p data-lang="no" style="display:none;">
+                    DIRTY BUSINESS er et prosjekt av <a href="#">Laboratory for Urban Boundaries</a>, 
+                    som undersøker massebevegelser i Oslo-regionen.
+                </p>
+            </section>
+            <section class="credit-section">
+                <h3 data-lang="en">Contact</h3>
+                <h3 data-lang="no" style="display:none;">Kontakt</h3>
+                <p>info@boundarieslab.org</p>
+            </section>
+        </div>
+    </div>
+
 </div>
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox">
-    <button class="lightbox-close" id="lightbox-close">&times;</button>
+    <button class="lightbox-close" id="lightbox-close">×</button>
+    <button class="lightbox-prev" id="lightbox-prev">‹</button>
+    <button class="lightbox-next" id="lightbox-next">›</button>
     <div class="lightbox-content">
         <img id="lightbox-img" src="" alt="">
         <p class="lightbox-caption" id="lightbox-caption"></p>
+    </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="modal" id="report-modal">
+    <div class="modal-content">
+        <button class="modal-close" id="report-close">×</button>
+        <h2 data-lang="en">Report a Site</h2>
+        <h2 data-lang="no" style="display:none;">Rapporter et sted</h2>
+        <form id="report-form">
+            <input type="text" placeholder="Location name" required>
+            <input type="text" placeholder="Coordinates or address">
+            <textarea placeholder="Description of activity observed" rows="4"></textarea>
+            <input type="email" placeholder="Your email (optional)">
+            <button type="submit" class="submit-btn">
+                <span data-lang="en">Submit Report</span>
+                <span data-lang="no" style="display:none;">Send rapport</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="modal" id="share-modal">
+    <div class="modal-content">
+        <button class="modal-close" id="share-close">×</button>
+        <h2 data-lang="en">Share</h2>
+        <h2 data-lang="no" style="display:none;">Del</h2>
+        <input type="text" id="share-url" readonly>
+        <button class="copy-btn" id="copy-url">
+            <span data-lang="en">Copy Link</span>
+            <span data-lang="no" style="display:none;">Kopier lenke</span>
+        </button>
     </div>
 </div>
 
