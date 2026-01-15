@@ -3,7 +3,7 @@
 // ============================================
 
 const CONFIG = {
-    dataURL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS1KaVHKy2zLYGg4Urbhm2zjZkmuATNvIqJOxuECuU0wdickEExV-8G0vL1F7xG1WKn_ADmwwfSARan/pub?gid=0&single=true&output=csv',
+    dataURL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS1KaVHKy2zLYGg4Urbhm2zjZkmuATNvIqJOxuECuU0wdickEExV-8G0vL1F7xG1WKn_ADmwwfSARan/pub?output=csv',
     
     mapCenter: [60.0, 10.5],
     mapZoom: 8,
