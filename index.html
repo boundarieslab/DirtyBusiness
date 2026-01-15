@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DIRTY BUSINESS</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -16,9 +13,18 @@
 <header class="header">
     <div class="logo">Dirty Business</div>
     <nav class="nav-tabs">
-        <button class="nav-tab active" data-panel="map">Map</button>
-        <button class="nav-tab" data-panel="about">About</button>
-        <button class="nav-tab" data-panel="credits">Credits</button>
+        <button class="nav-tab active" data-panel="map">
+            <span data-lang="en">Map</span>
+            <span data-lang="no" style="display:none;">Kart</span>
+        </button>
+        <button class="nav-tab" data-panel="about">
+            <span data-lang="en">About</span>
+            <span data-lang="no" style="display:none;">Om</span>
+        </button>
+        <button class="nav-tab" data-panel="credits">
+            <span data-lang="en">Credits</span>
+            <span data-lang="no" style="display:none;">Kreditt</span>
+        </button>
     </nav>
     <div class="header-right">
         <div class="lang-toggle">
@@ -26,7 +32,10 @@
             <span class="lang-divider">/</span>
             <span class="lang-btn" data-lang="no">NO</span>
         </div>
-        <button class="report-btn">⚠ Report</button>
+        <button class="report-btn">
+            <span data-lang="en">Report</span>
+            <span data-lang="no" style="display:none;">Rapporter</span>
+        </button>
     </div>
 </header>
 
@@ -35,7 +44,6 @@
     
     <!-- LEFT: SIDEBAR -->
     <aside class="sidebar" id="sidebar">
-        <!-- Site Image Slideshow -->
         <div class="site-images" id="siteImages">
             <div class="image-placeholder">
                 <span data-lang="en">Select a site on the map</span>
@@ -43,7 +51,6 @@
             </div>
         </div>
 
-        <!-- Site Content -->
         <div class="sidebar-scroll" id="sidebarContent">
             <div class="site-header">
                 <h1 class="site-name">
@@ -62,6 +69,14 @@
     <div class="map-container">
         <div id="map"></div>
 
+        <!-- North Arrow -->
+        <div class="north-arrow">
+            <svg width="20" height="28" viewBox="0 0 20 28">
+                <polygon points="10,0 18,24 10,18 2,24" fill="#000"/>
+                <text x="10" y="27" text-anchor="middle" font-size="7" fill="#000">N</text>
+            </svg>
+        </div>
+
         <!-- Map Controls -->
         <div class="map-controls">
             <div class="control-group">
@@ -69,15 +84,18 @@
                     <span data-lang="en">Base Layer</span>
                     <span data-lang="no" style="display:none;">Basiskart</span>
                 </div>
-                <label><input type="radio" name="basemap" value="grayscale" checked> 
-                    <span data-lang="en">Grayscale</span>
-                    <span data-lang="no" style="display:none;">Gråtone</span>
-                </label>
-                <label><input type="radio" name="basemap" value="satellite"> 
+                <label>
+                    <input type="radio" name="basemap" value="satellite" checked>
                     <span data-lang="en">Satellite</span>
                     <span data-lang="no" style="display:none;">Satellitt</span>
                 </label>
-                <label><input type="radio" name="basemap" value="topo"> 
+                <label>
+                    <input type="radio" name="basemap" value="grayscale">
+                    <span data-lang="en">Grayscale</span>
+                    <span data-lang="no" style="display:none;">Gråtone</span>
+                </label>
+                <label>
+                    <input type="radio" name="basemap" value="topo">
                     <span data-lang="en">Topographic</span>
                     <span data-lang="no" style="display:none;">Topografisk</span>
                 </label>
@@ -87,11 +105,13 @@
                     <span data-lang="en">Overlays</span>
                     <span data-lang="no" style="display:none;">Overlegg</span>
                 </div>
-                <label><input type="checkbox" id="toggle-hillshade"> 
+                <label>
+                    <input type="checkbox" id="toggle-hillshade">
                     <span data-lang="en">Hillshade</span>
                     <span data-lang="no" style="display:none;">Terrengskygge</span>
                 </label>
-                <label><input type="checkbox" id="toggle-contaminated"> 
+                <label>
+                    <input type="checkbox" id="toggle-contaminated">
                     <span data-lang="en">Contaminated Ground</span>
                     <span data-lang="no" style="display:none;">Forurenset grunn</span>
                 </label>
@@ -127,10 +147,22 @@
 <!-- ABOUT PANEL -->
 <div class="overlay-panel" id="panel-about">
     <button class="panel-close" onclick="showPanel('map')">✕</button>
-    <div class="panel-content" id="aboutContent">
-        <div class="loading">
-            <span data-lang="en">Loading...</span>
-            <span data-lang="no" style="display:none;">Laster...</span>
+    <div class="panel-content">
+        <div data-lang="en">
+            <h2>What is this?</h2>
+            <p>Dirty Business is an independent research project mapping mass waste management facilities and landfills across Norway. This platform documents the infrastructure and corporate networks involved in handling excavated soil from construction projects.</p>
+            <h2>Why does it matter?</h2>
+            <p>Construction projects in Norway generate millions of cubic meters of excavated soil annually. Where does it all go? Who profits? What are the environmental consequences? This project aims to make this invisible infrastructure visible.</p>
+            <h2>Methodology</h2>
+            <p>Data is collected from public permit applications and environmental impact assessments, Miljødirektoratet's databases, municipal planning documents, satellite imagery and aerial photography, and field visits.</p>
+        </div>
+        <div data-lang="no" style="display:none;">
+            <h2>Hva er dette?</h2>
+            <p>Dirty Business er et uavhengig forskningsprosjekt som kartlegger massehåndteringsanlegg og deponier i Norge. Plattformen dokumenterer infrastrukturen og selskapsnettverkene som håndterer utgravde masser fra byggeprosjekter.</p>
+            <h2>Hvorfor er dette viktig?</h2>
+            <p>Byggeprosjekter i Norge genererer millioner av kubikkmeter med utgravde masser årlig. Hvor går alt? Hvem tjener på det? Hva er miljøkonsekvensene? Dette prosjektet ønsker å synliggjøre denne usynlige infrastrukturen.</p>
+            <h2>Metodikk</h2>
+            <p>Data samles inn fra offentlige tillatelsessøknader og konsekvensutredninger, Miljødirektoratets databaser, kommunale plandokumenter, satellittbilder og flybilder, samt feltbesøk.</p>
         </div>
     </div>
 </div>
@@ -138,10 +170,30 @@
 <!-- CREDITS PANEL -->
 <div class="overlay-panel" id="panel-credits">
     <button class="panel-close" onclick="showPanel('map')">✕</button>
-    <div class="panel-content" id="creditsContent">
-        <div class="loading">
-            <span data-lang="en">Loading...</span>
-            <span data-lang="no" style="display:none;">Laster...</span>
+    <div class="panel-content">
+        <div data-lang="en">
+            <h2>Data Sources</h2>
+            <p>Kartverket — Base maps and topographic data<br>
+            Norge i Bilder — Satellite imagery<br>
+            Miljødirektoratet — Environmental permits and contaminated ground data<br>
+            Statsforvalteren — Regional permit documents</p>
+            <h2>Technology</h2>
+            <p>Leaflet.js — Interactive mapping<br>
+            PapaParse — CSV parsing</p>
+            <p><strong>Laboratory for Urban Boundaries</strong><br>
+            An architectural collective focused on spatial justice and environmental protection in Norway.</p>
+        </div>
+        <div data-lang="no" style="display:none;">
+            <h2>Datakilder</h2>
+            <p>Kartverket — Grunnkart og topografiske data<br>
+            Norge i Bilder — Satellittbilder<br>
+            Miljødirektoratet — Miljøtillatelser og data om forurenset grunn<br>
+            Statsforvalteren — Regionale tillatelsesdokumenter</p>
+            <h2>Teknologi</h2>
+            <p>Leaflet.js — Interaktiv kartlegging<br>
+            PapaParse — CSV-parsing</p>
+            <p><strong>Laboratory for Urban Boundaries</strong><br>
+            Et arkitekturkollektiv med fokus på romlig rettferdighet og miljøvern i Norge.</p>
         </div>
     </div>
 </div>
@@ -150,13 +202,11 @@
 <div id="lightbox">
     <span class="lightbox-close" onclick="closeLightbox()">✕</span>
     <img id="lightbox-img" src="" alt="">
-    <p id="lightbox-caption"></p>
 </div>
 
 <!-- SCRIPTS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="settings.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
