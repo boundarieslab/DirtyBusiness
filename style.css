@@ -1,23 +1,11 @@
 /* Font faces (place this at top of your main stylesheet) */
 @font-face {
-  font-family: 'Complex';
-  src: url('../fonts/Complex.woff2') format('woff2'),
-       url('../fonts/Complex.woff') format('woff'),
-       url('../fonts/Complex.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+    font-family: 'Complex';
+    src: url('fonts/Complex.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
 }
-
-/* If you have a bold font file, declare it too */
-@font-face {
-  font-family: 'Complex';
-  src: url('../fonts/Complex-Bold.woff2') format('woff2'),
-       url('../fonts/Complex-Bold.woff') format('woff'),
-       url('../fonts/Complex-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
 }
 
 /* Base resets / typography */
@@ -33,8 +21,7 @@ html, body {
 
 /* Apply the font with sensible fallbacks */
 body {
-  font-family: 'Complex', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-weight: 400;
+font-family: 'Complex', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;  
   font-style: normal;
   background: #ffffff;
   color: #1a1a1a;
@@ -68,9 +55,7 @@ body {
 }
 
 .logo {
-  font-family: 'Complex', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-weight: 700;
-  font-size: 22px;
+font-family: 'Complex', sans-serif;  font-size: 22px;
   color: #000000;
   letter-spacing: 1px;
 }
