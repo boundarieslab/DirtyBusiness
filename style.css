@@ -3,14 +3,13 @@
    ============================================ */
 
 /* COMPLEX FONT - Upload Complex.ttf to /fonts/ folder, then uncomment below */
-/*
+
 @font-face {
     font-family: 'Complex';
     src: url('fonts/Complex.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
-*/
 
 * {
     margin: 0;
