@@ -1,6 +1,0 @@
-name,lat,lon,type,location,operator,status,desc_en,desc_no,contaminants,images
-Engadalen Massemottak,59.9827,10.9156,Massemottak,Lørenskog,Norsk Gjenvinning,Active,Large mass reception facility accepting clean fill and construction waste.,Stort massemottak som tar imot rene masser og byggeavfall.,"pb,zn,pah",
-Lindum Oredalen,59.7654,10.2345,Deponi,Drammen,Lindum AS,Active,Major landfill facility with environmental monitoring.,Stort deponi med miljøovervåking.,"pb,hg,cd,pah,pcb",
-Franzefoss Pukkverk,60.1234,10.5678,Pukkverk,Bærum,Franzefoss AS,Active,Aggregate quarry and crushing facility.,Pukkverk og knuseanlegg.,,
-ROAF Gjenvinning,59.9456,11.0234,Gjenvinning,Skedsmo,ROAF,Active,Regional waste management and recycling center.,Regionalt avfallsmottak og gjenvinningsstasjon.,"pfas",
-Romerike Massedeponi,60.0123,11.1567,Massemottak,Ullensaker,Private,Active,Fill site near Gardermoen accepting excavation masses.,Fyllplass nær Gardermoen som tar imot gravemasser.,"cu,zn",
