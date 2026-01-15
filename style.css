@@ -1,34 +1,47 @@
-/* ============================================
-   DIRTY BUSINESS - Complete Fixed CSS
-   ============================================ */
-
-/* COMPLEX FONT - Upload Complex.ttf to /fonts/ folder, then uncomment below */
-
+/* Font faces (place this at top of your main stylesheet) */
 @font-face {
-    font-family: 'Complex';
-    src: url('fonts/Complex.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'Complex';
+  src: url('../fonts/Complex.woff2') format('woff2'),
+       url('../fonts/Complex.woff') format('woff'),
+       url('../fonts/Complex.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
+/* If you have a bold font file, declare it too */
+@font-face {
+  font-family: 'Complex';
+  src: url('../fonts/Complex-Bold.woff2') format('woff2'),
+       url('../fonts/Complex-Bold.woff') format('woff'),
+       url('../fonts/Complex-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Base resets / typography */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+}
+
+/* Apply the font with sensible fallbacks */
 body {
-    /* Change to 'Complex', sans-serif when font is uploaded */
-    font-family: 'Complex';
-    src: url('fonts/Complex.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    background: #ffffff;
-    color: #1a1a1a;
-    font-size: 12px;
-    line-height: 1.5;
-    overflow: hidden;
-    height: 100vh;
+  font-family: 'Complex', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 16px; /* 14-16px recommended for accessibility */
+  line-height: 1.5;
+  /* Remove overflow:hidden unless you specifically want to hide scrollbars */
+  /* overflow: auto; */
 }
 
 /* ============================================
@@ -36,29 +49,30 @@ body {
    ============================================ */
 
 .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50px;
-    background: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+/* Give your page content a top offset so it isn't hidden under the header */
+.main-content {
+  padding-top: 50px; /* match .header height */
 }
 
 .logo {
-    /* Change to 'Complex', sans-serif when font uploaded */
-    font-family: 'Complex';
-    src: url('fonts/Complex.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-    font-size: 22px;
-    font-weight: 700;
-    color: #000000;
-    letter-spacing: 1px;
+  font-family: 'Complex', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #000000;
+  letter-spacing: 1px;
 }
 
 .nav-tabs {
