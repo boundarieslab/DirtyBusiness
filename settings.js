@@ -1,109 +1,120 @@
-// =====================================================
-// DIRTY BUSINESS - Settings
-// =====================================================
+// ============================================
+// DIRTY BUSINESS - Settings & Configuration
+// ============================================
 
-// Map center: OSLO
-const mapCenter = [59.91, 10.75];
-const mapZoom = 11;
+// MAP DEFAULTS
+const mapCenter = [59.95, 10.85];  // Oslo region
+const mapZoom = 10;
+const siteZoomLevel = 16;  // Zoom level when clicking a site
 
-// =====================================================
-// DATA SOURCE - Google Sheets (Published CSV)
-// =====================================================
-const dataURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnON3VXUjMLUIfRVxtv_3UOAt_Juyx5ShiNkmoGWs7sQWaNqpK6eh3usIMg44OswkVg8iNa5VdhFWv/pub?output=csv';
+// DATA SOURCE (Google Sheets published as CSV)
+// For testing: use local data.csv
+// For production: replace with your Google Sheets published CSV URL
+// Example: 'https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv'
+const dataLocation = 'data.csv';
 
-// =====================================================
-// BASE MAPS
-// =====================================================
+// ABOUT & CREDITS CONTENT URLs
+// Can be published Google Docs or HTML files
+const aboutDocUrl = 'about.html';
+const creditsDocUrl = 'credits.html';
+
+// ============================================
+// BASEMAPS
+// ============================================
+
 const basemaps = {
-    
-    // CartoDB Dark Matter - detailed dark basemap
-    dark: {
-        url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    grayscale: {
+        url: 'https://cache.kartverket.no/v1/wmts/1.0.0/topograatone/default/webmercator/{z}/{y}/{x}.png',
         options: {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-            subdomains: 'abcd',
+            attribution: '&copy; <a href="https://kartverket.no">Kartverket</a>',
             maxZoom: 20
         }
     },
-    
-    // Satellite (Norge i Bilder)
     satellite: {
-        url: 'https://waapi.webatlas.no/maptiles/tiles/webatlas-orto-newup/wa_grid/{z}/{x}/{y}.jpeg?api_key=b8e36d51-0e18-4792-9450-f2e33db95095',
+        url: 'https://waapi.webatlas.no/maptiles/tiles/webatlas-orto-newup/wa_grid/{z}/{x}/{y}.jpeg?api_key=b8e36d35-b325-4e57-984f-e055ad30e414',
         options: {
-            attribution: '&copy; <a href="https://www.norgeibilder.no">Norge i Bilder</a>',
-            maxZoom: 19
+            attribution: '&copy; <a href="https://norgeibilder.no">Norge i Bilder</a>',
+            maxZoom: 20
         }
     },
-    
-    // Kartverket Topographic
     topo: {
         url: 'https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png',
         options: {
             attribution: '&copy; <a href="https://kartverket.no">Kartverket</a>',
-            maxZoom: 19
+            maxZoom: 20
         }
     }
 };
 
-// =====================================================
-// WMS OVERLAY LAYERS
-// =====================================================
+// ============================================
+// OVERLAY LAYERS (WMS)
+// ============================================
+
 const overlays = {
-    
-    // DTM Hillshade (Kartverket)
     hillshade: {
         url: 'https://wms.geonorge.no/skwms1/wms.hoyde-dtm-nhm-25833',
         options: {
-            layers: 'nhm_dtm_25833_terrengskyggerelieff',
+            layers: 'Terrengskygge',
             format: 'image/png',
             transparent: true,
             opacity: 0.4,
             attribution: '&copy; Kartverket'
         }
     },
-    
-    // Contaminated Ground (Miljødirektoratet)
     contaminated: {
         url: 'https://kart.miljodirektoratet.no/arcgis/services/grunnforurensning2/MapServer/WMSServer',
         options: {
-            layers: 'forurenset_omrade,forurenset_omrade_pkt',
+            layers: '0',
             format: 'image/png',
             transparent: true,
             opacity: 0.7,
             attribution: '&copy; Miljødirektoratet'
         }
-    },
-    
-    // Quick Clay Zones (NVE)
-    quickclay: {
-        url: 'https://gis3.nve.no/map/services/SkredKvikkleire2/MapServer/WMSServer',
-        options: {
-            layers: '0,1,2,3',
-            format: 'image/png',
-            transparent: true,
-            opacity: 0.6,
-            attribution: '&copy; NVE'
-        }
     }
 };
 
-// =====================================================
-// GOOGLE DRIVE FOLDER STRUCTURE
-// =====================================================
-/*
-To add images/documents from Google Drive:
+// ============================================
+// MARKER STYLES BY TYPE
+// ============================================
 
-1. Upload file to your DirtyBusiness folder
-2. Right-click → Share → "Anyone with the link can view"
-3. Copy the file ID from the URL
+const markerStyles = {
+    'Deponi': {
+        color: '#ff00ff',
+        symbol: '●'
+    },
+    'Massemottak': {
+        color: '#00ffff',
+        symbol: '■'
+    },
+    'Pukkverk': {
+        color: '#ccff00',
+        symbol: '▲'
+    },
+    'Gjenvinning': {
+        color: '#ff6600',
+        symbol: '◆'
+    },
+    'default': {
+        color: '#999999',
+        symbol: '●'
+    }
+};
 
-For IMAGES in spreadsheet:
-https://drive.google.com/uc?export=view&id=FILE_ID_HERE
+// ============================================
+// KNOWN CONTAMINANTS (for chemical grid)
+// ============================================
 
-For PDFs/Documents:
-https://drive.google.com/file/d/FILE_ID_HERE/preview
-
-Example:
-If share link is: https://drive.google.com/file/d/1ABC123xyz/view
-Image URL: https://drive.google.com/uc?export=view&id=1ABC123xyz
-*/
+const knownContaminants = {
+    'pb': { symbol: 'Pb', name: 'Lead' },
+    'hg': { symbol: 'Hg', name: 'Mercury' },
+    'cd': { symbol: 'Cd', name: 'Cadmium' },
+    'as': { symbol: 'As', name: 'Arsenic' },
+    'cr': { symbol: 'Cr', name: 'Chromium' },
+    'cu': { symbol: 'Cu', name: 'Copper' },
+    'zn': { symbol: 'Zn', name: 'Zinc' },
+    'ni': { symbol: 'Ni', name: 'Nickel' },
+    'pah': { symbol: 'PAH', name: 'PAH' },
+    'pcb': { symbol: 'PCB', name: 'PCB' },
+    'pfas': { symbol: 'PFAS', name: 'PFAS' },
+    'oil': { symbol: 'Oil', name: 'Petroleum' }
+};
